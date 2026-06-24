@@ -1,0 +1,152 @@
+<view class="equipment-page">
+  <nav-bar title="设备管理" />
+
+  <view class="account-strip" wx:if="{{currentUser}}">
+    <view class="account-avatar">
+      <image class="account-avatar-image" wx:if="{{currentUser.avatarUrl}}" src="{{currentUser.avatarUrl}}" mode="aspectFill" />
+      <text class="account-avatar-text" wx:else>{{currentUser.avatarText || '杯'}}</text>
+    </view>
+    <view class="account-info">
+      <text class="account-label">当前使用者</text>
+      <text class="account-name">{{currentUser.displayName || currentUser.nickName || '微信用户'}}</text>
+      <text class="account-desc">设备偏好会保存到这个账户</text>
+    </view>
+    <text class="logout-btn" bindtap="onLogout">退出</text>
+  </view>
+  <view class="account-strip account-strip-guest" wx:else>
+    <view class="account-avatar account-avatar-guest">
+      <text class="account-avatar-text">未</text>
+    </view>
+    <view class="account-info">
+      <text class="account-label">当前使用者</text>
+      <text class="account-name">未登录</text>
+      <text class="account-desc">登录后同步你的默认设备和偏好</text>
+    </view>
+    <text class="logout-btn login-entry-btn" bindtap="onGoLogin">登录</text>
+  </view>
+  <view class="feedback-note">
+    <text>使用问题反馈请联系 maybedaniel_</text>
+  </view>
+
+  <view class="equip-tabs">
+    <view class="equip-tab {{activeTab === 'cup' ? 'active' : ''}}" bindtap="onSwitchTab" data-tab="cup">
+      <text>滤杯</text>
+    </view>
+    <view class="equip-tab {{activeTab === 'paper' ? 'active' : ''}}" bindtap="onSwitchTab" data-tab="paper">
+      <text>滤纸</text>
+    </view>
+    <view class="equip-tab {{activeTab === 'grinder' ? 'active' : ''}}" bindtap="onSwitchTab" data-tab="grinder">
+      <text>磨豆机</text>
+    </view>
+  </view>
+
+  <view class="equip-search-card">
+    <view class="equip-search-head">
+      <view class="equip-search-title-row">
+        <text class="equip-search-title">{{activeTabLabel}}库</text>
+        <text class="equip-search-count" wx:if="{{hasSearchKeyword}}">{{searchResultCount}} / {{activeEquipmentCount}}</text>
+        <text class="equip-search-count" wx:else>{{activeEquipmentCount}} 个</text>
+      </view>
+      <text class="equip-search-desc">{{librarySummary}}</text>
+    </view>
+    <view class="equip-search-box">
+      <text class="equip-search-icon">搜</text>
+      <input
+        class="equip-search-input"
+        value="{{searchKeyword}}"
+        placeholder="{{searchPlaceholder}}"
+        confirm-type="search"
+        bindinput="onEquipmentSearchInput"
+      />
+      <text class="equip-search-clear" wx:if="{{searchKeyword}}" bindtap="onClearEquipmentSearch">清除</text>
+    </view>
+  </view>
+
+  <scroll-view class="equip-list" scroll-y="true" wx:if="{{currentEquipments.length > 0 || hiddenEquipments.length > 0}}">
+    <view class="equip-section" wx:if="{{currentEquipments.length > 0}}">
+      <view class="equip-section-head">
+        <text class="equip-section-title">优先显示</text>
+        <text class="equip-section-desc">{{currentSectionDesc}}</text>
+      </view>
+
+      <view class="equip-item group-{{item.group}}" wx:for="{{currentEquipments}}" wx:key="id">
+        <view class="equip-left">
+          <view class="equip-title-row">
+            <text class="equip-name">{{item.model || item.name}}</text>
+            <text class="group-chip group-chip-{{item.group}}">{{item.groupLabel}}</text>
+          </view>
+          <text class="equip-desc">{{item.brand || '自定义设备'}} · {{item.note || '手动添加'}}</text>
+          <view class="cupping-badge" wx:if="{{item.cupping}}">
+            <text>杯测：{{item.cupping}}</text>
+          </view>
+          <view class="mapping-badge" wx:if="{{item.mapping}}">
+            <text>匹配：{{item.mapping}}</text>
+          </view>
+        </view>
+        <view class="equip-right">
+          <view class="default-badge" wx:if="{{item.isDefault}}" bindtap="onClearDefault" data-id="{{item.id}}" data-type="{{item.type}}">
+            <text>默认</text>
+          </view>
+          <view class="set-default-btn" wx:else bindtap="onSetDefault" data-id="{{item.id}}" data-type="{{item.type}}">
+            <text>设默认</text>
+          </view>
+          <text class="equip-delete {{item.preset ? 'disabled' : ''}}" bindtap="onDelete" data-id="{{item.id}}">
+            {{item.preset ? '预设' : '删除'}}
+          </text>
+          <text class="equip-action equip-hide" bindtap="onHideEquipment" data-id="{{item.id}}" data-type="{{item.type}}">隐藏</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="hidden-toggle" wx:if="{{hiddenEquipments.length > 0}}" bindtap="onToggleHiddenEquipments">
+      <view class="hidden-toggle-left">
+        <text class="hidden-toggle-title">{{showHiddenEquipments ? '收起其他设备' : '展开其他设备'}}</text>
+        <text class="hidden-toggle-desc">{{hasSearchKeyword ? '搜索结果里的已隐藏设备和其他预设也会显示在这里' : '已隐藏设备和其余预设暂时收起，保持页面简洁'}}</text>
+      </view>
+      <view class="hidden-toggle-right">
+        <text>{{hiddenEquipments.length}} 个</text>
+        <text class="hidden-arrow">{{showHiddenEquipments ? '↑' : '↓'}}</text>
+      </view>
+    </view>
+
+    <view class="equip-section hidden-section" wx:if="{{showHiddenEquipments}}">
+      <view class="equip-item group-{{item.group}}" wx:for="{{hiddenEquipments}}" wx:key="id">
+        <view class="equip-left">
+          <view class="equip-title-row">
+            <text class="equip-name">{{item.model || item.name}}</text>
+            <text class="group-chip group-chip-{{item.group}}">{{item.groupLabel}}</text>
+          </view>
+          <text class="equip-desc">{{item.brand || '自定义设备'}} · {{item.note || '手动添加'}}</text>
+          <view class="cupping-badge" wx:if="{{item.cupping}}">
+            <text>杯测：{{item.cupping}}</text>
+          </view>
+          <view class="mapping-badge" wx:if="{{item.mapping}}">
+            <text>匹配：{{item.mapping}}</text>
+          </view>
+        </view>
+        <view class="equip-right">
+          <view class="default-badge" wx:if="{{item.isDefault}}" bindtap="onClearDefault" data-id="{{item.id}}" data-type="{{item.type}}">
+            <text>默认</text>
+          </view>
+          <view class="set-default-btn" wx:else bindtap="onSetDefault" data-id="{{item.id}}" data-type="{{item.type}}">
+            <text>设默认</text>
+          </view>
+          <text class="equip-delete {{item.preset ? 'disabled' : ''}}" bindtap="onDelete" data-id="{{item.id}}">
+            {{item.preset ? '预设' : '删除'}}
+          </text>
+          <text class="equip-action equip-show" bindtap="onShowEquipment" data-id="{{item.id}}" data-type="{{item.type}}">显示</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="empty-state" wx:if="{{currentEquipments.length === 0 && hiddenEquipments.length === 0}}">
+    <text class="empty-icon">□</text>
+    <text class="empty-title">{{hasSearchKeyword ? '没有找到匹配设备' : '还没有添加设备'}}</text>
+    <text class="empty-desc">{{hasSearchKeyword ? '换个品牌、型号或分类关键词试试' : '添加你的滤杯、滤纸和磨豆机，方便快速选择'}}</text>
+  </view>
+
+  <view class="add-fab" bindtap="onAddEquipment">
+    <text class="fab-icon">+</text>
+  </view>
+</view>

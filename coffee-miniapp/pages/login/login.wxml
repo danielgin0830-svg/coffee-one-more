@@ -1,0 +1,27 @@
+<view class="login-page">
+  <nav-bar title="账户登录" />
+
+  <view class="login-content">
+    <view class="brand-block">
+      <text class="brand-mark">咖</text>
+      <text class="brand-title">搞杯喝的</text>
+      <text class="brand-subtitle">登录后使用独立豆仓、设备和方案存档</text>
+    </view>
+
+    <view class="login-panel">
+      <text class="field-label">账户名称</text>
+      <input
+        class="nickname-input"
+        value="{{nickName}}"
+        placeholder="例如：Daniel 的咖啡档案"
+        maxlength="24"
+        bindinput="onNickNameInput"
+      />
+      <button class="login-button" loading="{{loggingIn}}" disabled="{{loggingIn}}" bindtap="onLogin">
+        {{loggingIn ? '登录中' : '微信登录'}}
+      </button>
+      <button class="browse-button" disabled="{{loggingIn}}" bindtap="onBrowse">先逛逛</button>
+      <text class="login-note">微信登录后按 openid 云端同步豆仓、设备和方案存档；云函数不可用时会临时使用本机账户。</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,157 @@
+<view class="recipe-card">
+  <view class="recipe-header">
+    <text class="recipe-title">{{recipe.beanName || '冲煮方案'}}</text>
+    <view class="recipe-bookmark {{recipe.bookmarked ? 'active' : ''}}" bindtap="onBookmark">
+      <text>{{recipe.bookmarked ? '★' : '☆'}}</text>
+    </view>
+  </view>
+
+  <view class="recipe-start-card" wx:if="{{showBrewStart}}" bindtap="onStartBrew">
+    <view class="recipe-start-copy">
+      <text class="recipe-start-title">开始冲煮</text>
+      <text class="recipe-start-subtitle">全屏计时 · 跟着节点操作</text>
+    </view>
+    <text class="recipe-start-arrow">›</text>
+  </view>
+
+  <view class="recipe-method" wx:if="{{displayMethodName}}">
+    <text class="method-name">{{displayMethodName}}</text>
+    <text class="method-source">{{displayMethodSource}}</text>
+  </view>
+
+  <view class="recipe-params">
+    <view class="param-item">
+      <text class="param-label">{{recipe.grindLabel || 'C40'}}</text>
+      <text class="param-value">{{recipe.grindSetting}}</text>
+    </view>
+    <view class="param-item">
+      <text class="param-label">水温</text>
+      <text class="param-value">{{recipe.waterTemp}}℃</text>
+    </view>
+    <view class="param-item">
+      <text class="param-label">总水量</text>
+      <text class="param-value">{{recipe.totalWater}}g</text>
+    </view>
+    <view class="param-item">
+      <text class="param-label">粉水比</text>
+      <text class="param-value">{{displayRatioText}}</text>
+    </view>
+  </view>
+
+  <view class="grinder-reference" wx:if="{{recipe.grinderReference}}">
+    <text class="section-title">磨豆机参考</text>
+    <text class="grinder-text">{{recipe.grinderReference}}</text>
+    <text class="grinder-note">{{recipe.grinderNote}}</text>
+  </view>
+
+  <view class="grinder-reference" wx:if="{{recipe.waterName}}">
+    <text class="section-title">冲煮水</text>
+    <text class="grinder-text">{{recipe.waterName}} · TDS {{recipe.waterTds}} ppm</text>
+    <text class="grinder-note">{{recipe.waterAdjustmentNote}}</text>
+  </view>
+
+  <view class="grinder-reference" wx:if="{{recipe.cup || recipe.paper}}">
+    <text class="section-title">冲煮器具</text>
+    <text class="grinder-text" wx:if="{{recipe.cup}}">滤杯：{{recipe.cup}}</text>
+    <text class="grinder-text" wx:if="{{recipe.paper}}">滤纸：{{recipe.paper}}</text>
+  </view>
+
+  <view class="bean-extra-reference" wx:if="{{recipe.beanExtraInfo}}">
+    <text class="section-title">豆子补充信息</text>
+    <text class="bean-extra-text">{{recipe.beanExtraInfo}}</text>
+  </view>
+
+  <view class="recipe-stages">
+    <text class="section-title">注水阶段</text>
+    <view class="stage-item" wx:for="{{displayStages}}" wx:key="stageIndex">
+      <view class="stage-index">
+        <text>{{item.stageIndex}}</text>
+      </view>
+      <view class="stage-info">
+        <text class="stage-name">{{item.name}}</text>
+        <view class="stage-chip-row">
+          <view class="stage-chip stage-chip-water" wx:if="{{item.waterLabel}}">
+            <text class="stage-chip-label">目标水量</text>
+            <text class="stage-chip-value">{{item.waterLabel}}</text>
+          </view>
+          <view class="stage-chip stage-chip-time" wx:if="{{item.durationLabel}}">
+            <text class="stage-chip-label">{{item.timeLabel}}</text>
+            <text class="stage-chip-value">{{item.durationLabel}}</text>
+          </view>
+        </view>
+        <view class="stage-note-block" wx:if="{{item.noteText}}">
+          <text class="stage-note-label">注水注意事项</text>
+          <text class="stage-note-text">{{item.noteText}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="flavor-feedback" wx:if="{{showFeedback && recipe.feedbackOptions && recipe.feedbackOptions.length}}">
+    <view class="feedback-header">
+      <text class="section-title feedback-section-title">风味反馈</text>
+      <text class="feedback-subtitle">请选择本次感官最明显的感受，下一杯会按反馈继续校准</text>
+    </view>
+    <view class="bean-flavor-reference" wx:if="{{recipe.beanFlavorNotes}}">
+      <text class="bean-flavor-reference-label">豆仓风味描述</text>
+      <text class="bean-flavor-reference-text">{{recipe.beanFlavorNotes}}</text>
+    </view>
+    <view class="feedback-result applied-feedback" wx:if="{{recipe.appliedFeedback}}">
+      <text class="feedback-title">已应用上次反馈</text>
+      <text class="feedback-text">{{recipe.appliedFeedback.note}}</text>
+    </view>
+    <view class="feedback-options">
+      <view class="feedback-chip feedback-chip-{{item.tone}} {{recipe.feedback && recipe.feedback.type === item.key ? 'active' : ''}}" wx:for="{{recipe.feedbackOptions}}" wx:key="key" bindtap="onFeedback" data-type="{{item.key}}">
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+    <view class="feedback-result current-feedback" wx:if="{{recipe.feedback}}">
+      <text class="feedback-title">本次反馈：{{recipe.feedback.label}}</text>
+      <text class="feedback-text">{{recipe.feedback.text}}</text>
+      <text class="feedback-grind">{{recipe.feedback.grind}}</text>
+      <view class="feedback-direction" wx:if="{{recipe.feedback.direction}}">
+        <text class="feedback-direction-title">下一杯修正方向</text>
+        <view class="feedback-direction-row">
+          <text class="feedback-direction-label">研磨</text>
+          <text class="feedback-direction-value">{{recipe.feedback.direction.grind}}</text>
+        </view>
+        <view class="feedback-direction-row">
+          <text class="feedback-direction-label">冲煮</text>
+          <text class="feedback-direction-value">{{recipe.feedback.direction.brew}}</text>
+        </view>
+        <view class="feedback-direction-row">
+          <text class="feedback-direction-label">提醒</text>
+          <text class="feedback-direction-value">{{recipe.feedback.direction.reminder}}</text>
+        </view>
+      </view>
+      <text class="feedback-note">{{recipe.feedback.note}}</text>
+    </view>
+    <view class="feedback-result next-feedback" wx:if="{{recipe.nextFeedbackAdjustment}}">
+      <text class="feedback-title">已记录到下一杯</text>
+      <text class="feedback-text">{{recipe.nextFeedbackAdjustment.note}}</text>
+    </view>
+  </view>
+
+  <view class="recipe-risks" wx:if="{{recipe.risks && recipe.risks.length}}">
+    <text class="section-title">注意事项</text>
+    <view class="risk-item" wx:for="{{recipe.risks}}" wx:key="index">
+      <text class="risk-dot">•</text>
+      <text class="risk-text">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="recipe-actions">
+    <view class="recipe-action-card action-muted" wx:if="{{showBackButton}}" bindtap="onBackPage">
+      <text class="action-label">{{backText}}</text>
+    </view>
+    <view class="recipe-action-card action-secondary" bindtap="onRetry">
+      <text class="action-label">{{retryText}}</text>
+    </view>
+    <view class="recipe-action-card action-secondary" bindtap="onShareCard">
+      <text class="action-label">生成分享卡片</text>
+    </view>
+    <view class="recipe-action-card action-primary {{recipe.saved && !allowSavedUpdate ? 'disabled' : ''}}" wx:if="{{showSave}}" bindtap="onSave">
+      <text class="action-label">{{recipe.saved && !allowSavedUpdate ? '已保存' : saveText}}</text>
+    </view>
+  </view>
+</view>

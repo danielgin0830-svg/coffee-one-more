@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/nav-bar",
+    "step-indicator": "/components/step-indicator/step-indicator",
+    "bean-card": "/components/bean-card/bean-card",
+    "recipe-card": "/components/recipe-card/recipe-card"
+  }
+}

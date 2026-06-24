@@ -1,0 +1,149 @@
+<view class="edit-bean-page">
+  <nav-bar title="{{isEdit ? '编辑豆子' : '添加豆子'}}" showBack="{{true}}" />
+
+  <view class="form">
+    <view class="ocr-result-card" wx:if="{{ocrDraftApplied}}">
+      <view class="ocr-result-header">
+        <text class="ocr-result-title">秒拍入库</text>
+        <text class="ocr-result-status">已预填，请确认</text>
+      </view>
+      <view class="ocr-field-tags" wx:if="{{ocrMatchedFields.length}}">
+        <text class="ocr-field-tag" wx:for="{{ocrMatchedFields}}" wx:key="field">{{item.label}}</text>
+      </view>
+      <view class="ocr-candidate-block" wx:if="{{ocrCandidateGroups.length}}">
+        <text class="ocr-candidate-title">待确认候选</text>
+        <view class="ocr-candidate-group" wx:for="{{ocrCandidateGroups}}" wx:key="field">
+          <text class="ocr-candidate-label">{{item.label}}</text>
+          <view class="ocr-candidate-chips">
+            <view
+              class="ocr-candidate-chip"
+              wx:for="{{item.items}}"
+              wx:for-item="candidate"
+              wx:key="value"
+              bindtap="onApplyOcrCandidate"
+              data-field="{{item.field}}"
+              data-value="{{candidate.value}}"
+            >
+              <text class="ocr-candidate-value">{{candidate.displayValue}}</text>
+              <text class="ocr-candidate-confidence" wx:if="{{candidate.confidenceText}}">{{candidate.confidenceText}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <text class="ocr-result-tip">识别结果只作为草稿，保存前请核对必填项。</text>
+      <text class="ocr-raw-text" wx:if="{{ocrRawTextPreview}}">识别原文：{{ocrRawTextPreview}}</text>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required-label">名称 *</text>
+      <input class="form-input" value="{{form.name}}" bindinput="onFieldChange" data-field="name" placeholder="例如：埃塞俄比亚 耶加雪菲" />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required-label">烘焙日期 *</text>
+      <picker class="date-picker" mode="date" value="{{form.roastDate}}" end="{{today}}" bindchange="onDateChange">
+        <view class="picker-row">
+          <text class="picker-value {{form.roastDate ? '' : 'placeholder'}}">{{form.roastDate || '选择烘焙日期'}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required-label">烘焙度 *</text>
+      <picker class="selector-picker" mode="selector" range="{{roastLevelOptions}}" range-key="label" value="{{roastLevelIndex}}" bindchange="onRoastLevelChange">
+        <view class="picker-row">
+          <text class="picker-value {{form.roastLevel ? '' : 'placeholder'}}">{{roastLevelLabel || '上下滚动选择烘焙度'}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required-label">处理法 *</text>
+      <view class="picker-row" bindtap="onPickProcessing">
+        <text class="picker-value {{form.processing ? '' : 'placeholder'}}">{{processingLabel || '选择处理法'}}</text>
+        <text class="picker-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required-label">风味描述 *</text>
+      <textarea class="form-textarea" value="{{form.flavorNotes}}" bindinput="onFieldChange" data-field="flavorNotes" placeholder="例如：柑橘、茉莉花、蜂蜜" />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label required-label">库存(克，整数) *</text>
+      <input class="form-input" type="number" value="{{form.stockGrams}}" bindinput="onFieldChange" data-field="stockGrams" placeholder="请输入整数，0 表示喝完" />
+    </view>
+
+    <view class="more-info-card">
+      <view class="more-info-header" bindtap="onToggleMoreInfo">
+        <view class="more-info-copy">
+          <text class="more-info-title">更多信息</text>
+          <text class="more-info-desc">产区、海拔、豆种和封面图，可按需补充。</text>
+        </view>
+        <text class="more-info-arrow">{{moreInfoExpanded ? '收起' : '展开'}}</text>
+      </view>
+
+      <view class="more-info-body" wx:if="{{moreInfoExpanded}}">
+        <view class="cover-picker-card">
+          <view class="cover-picker-main">
+            <view class="cover-preview {{form.coverImage ? 'has-image' : ''}}" bindtap="onChooseCoverImage">
+              <image wx:if="{{form.coverImage}}" class="cover-preview-image" src="{{form.coverImage}}" mode="aspectFill" />
+              <view wx:else class="cover-placeholder">
+                <text class="cover-placeholder-icon">图</text>
+                <text class="cover-placeholder-text">上传豆卡图</text>
+              </view>
+            </view>
+            <view class="cover-picker-copy">
+              <text class="cover-picker-title">豆卡墙封面</text>
+              <text class="cover-picker-desc">可选。上传后会作为豆仓豆卡墙里的显示图。</text>
+              <view class="cover-picker-actions">
+                <view class="cover-picker-btn primary" bindtap="onChooseCoverImage">
+                  <text>{{form.coverImage ? '更换图片' : '选择图片'}}</text>
+                </view>
+                <view class="cover-picker-btn" wx:if="{{form.coverImage}}" bindtap="onRemoveCoverImage">
+                  <text>移除</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="form-group">
+          <text class="form-label">产地</text>
+          <input class="form-input" value="{{form.origin}}" bindinput="onFieldChange" data-field="origin" placeholder="例如：埃塞俄比亚" />
+        </view>
+
+        <view class="form-group">
+          <text class="form-label">产区/地块</text>
+          <input class="form-input" value="{{form.regionLot}}" bindinput="onFieldChange" data-field="regionLot" placeholder="例如：耶加雪菲 · 沃卡" />
+        </view>
+
+        <view class="form-group">
+          <text class="form-label">种植海拔</text>
+          <input class="form-input" value="{{form.altitude}}" bindinput="onFieldChange" data-field="altitude" placeholder="例如：1800-2000m" />
+        </view>
+
+        <view class="form-group">
+          <text class="form-label">豆种</text>
+          <input class="form-input" value="{{form.variety}}" bindinput="onFieldChange" data-field="variety" placeholder="例如：74110 / 瑰夏 / 卡杜拉" />
+        </view>
+
+        <view class="form-group">
+          <text class="form-label">烘焙商</text>
+          <input class="form-input" value="{{form.roaster}}" bindinput="onFieldChange" data-field="roaster" placeholder="例如：蓝瓶子咖啡" />
+        </view>
+      </view>
+    </view>
+
+    <button class="btn-save" bindtap="onSave">
+      {{isEdit ? '保存修改' : '添加豆子'}}
+    </button>
+
+    <button class="btn-delete" wx:if="{{isEdit}}" bindtap="onDelete">
+      删除这款豆子
+    </button>
+  </view>
+</view>

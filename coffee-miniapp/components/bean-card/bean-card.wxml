@@ -1,0 +1,27 @@
+<view class="bean-card {{selected ? 'selected' : ''}}" bindtap="onTap">
+  <view class="bean-info">
+    <view class="bean-main-line">
+      <text class="bean-name">{{bean.name || '未命名'}}</text>
+      <text class="bean-origin">{{bean.origin || '未知产地'}} · {{bean.roaster || '未知烘焙商'}}</text>
+    </view>
+    <view class="bean-detail-line">
+      <view class="tag" wx:for="{{displayTags}}" wx:key="*this">
+        <text>{{item}}</text>
+      </view>
+      <view class="roast-age-badge {{bean.roastAgeClass}}">
+        <text>{{bean.roastAgeLabel || '未记录烘焙日期'}}</text>
+      </view>
+    </view>
+  </view>
+  <view class="bean-side">
+    <view class="bean-arrow" wx:if="{{showArrow}}">
+      <text>›</text>
+    </view>
+    <view class="bean-check" wx:if="{{showCheck && selected}}">
+      <text>✓</text>
+    </view>
+    <view class="stock-badge">
+      <text>库存 {{bean.stockText || '未填'}}</text>
+    </view>
+  </view>
+</view>

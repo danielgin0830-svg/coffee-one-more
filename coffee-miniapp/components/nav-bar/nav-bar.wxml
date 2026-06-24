@@ -1,0 +1,14 @@
+<view class="nav-bar" style="height: {{navBarHeight}}px; padding-top: {{statusBarHeight}}px;">
+  <view class="nav-content" style="height: {{navContentHeight}}px;">
+    <view class="nav-left" wx:if="{{showBack}}" bindtap="onBack">
+      <text class="nav-back-text">← 返回</text>
+    </view>
+    <view class="nav-left-placeholder" wx:else></view>
+    <view class="nav-center" wx:if="{{title}}">
+      <text class="nav-title">{{title}}</text>
+    </view>
+    <view class="nav-right">
+      <slot name="right"></slot>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,24 @@
+<view class="edit-equip-page">
+  <nav-bar title="{{title}}" showBack="{{true}}" />
+
+  <view class="form">
+    <view class="form-group">
+      <text class="form-label">型号 *</text>
+      <input class="form-input" value="{{form.model}}" bindinput="onFieldChange" data-field="model" placeholder="{{modelPlaceholder}}" />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">品牌</text>
+      <input class="form-input" value="{{form.brand}}" bindinput="onFieldChange" data-field="brand" placeholder="{{brandPlaceholder}}" />
+    </view>
+
+    <view class="form-group row">
+      <text class="form-label">设为默认设备</text>
+      <switch checked="{{form.isDefault}}" bindchange="onSwitchDefault" color="#E8752A" />
+    </view>
+
+    <button class="btn-save" bindtap="onSave">
+      保存
+    </button>
+  </view>
+</view>

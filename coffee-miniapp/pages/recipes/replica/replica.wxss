@@ -1,0 +1,259 @@
+.replica-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  background-color: #FAF7F2;
+  overflow-x: hidden;
+  font-family: "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei", sans-serif;
+  font-weight: 600;
+  --page-accent: #D99A36;
+  --page-accent-dark: #9B6420;
+  --page-accent-light: #FFF4DE;
+}
+
+.replica-scroll {
+  width: 100%;
+  height: calc(100vh - 132rpx);
+  box-sizing: border-box;
+  padding: 24rpx 28rpx 80rpx;
+}
+
+.manual-card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 28rpx;
+  border-radius: 24rpx;
+  background-color: #FFFFFF;
+  border: 2rpx solid #EDE5D8;
+  box-shadow: 0 8rpx 22rpx rgba(45, 36, 32, 0.05);
+}
+
+.manual-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 2rpx solid #EDE5D8;
+}
+
+.manual-title-input {
+  width: 100%;
+  min-height: 72rpx;
+  box-sizing: border-box;
+  padding: 12rpx 0;
+  color: #2A211B;
+  font-size: 38rpx;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.method-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  padding: 18rpx;
+  border-radius: 18rpx;
+  background-color: #FFF4DE;
+  border: 2rpx solid rgba(217, 154, 54, 0.38);
+}
+
+.manual-inline-input {
+  min-height: 44rpx;
+  color: #2A211B;
+  font-size: 25rpx;
+  font-weight: 800;
+}
+
+.manual-inline-input.muted {
+  color: #7A6050;
+  font-size: 23rpx;
+  font-weight: 600;
+}
+
+.manual-params {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+  padding: 24rpx 0 8rpx;
+}
+
+.manual-param-item {
+  min-width: 0;
+  min-height: 132rpx;
+  box-sizing: border-box;
+  padding: 20rpx;
+  border-radius: 18rpx;
+  background-color: #FAF7F2;
+  border: 2rpx solid #EDE5D8;
+}
+
+.manual-param-label,
+.manual-label {
+  display: block;
+  color: #7A6050;
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.manual-param-input {
+  width: 100%;
+  min-height: 64rpx;
+  margin-top: 8rpx;
+  color: #2A211B;
+  font-size: 27rpx;
+  font-weight: 800;
+}
+
+.manual-section {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 28rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx solid #EDE5D8;
+}
+
+.manual-section-title {
+  display: block;
+  color: #2A211B;
+  font-size: 28rpx;
+  font-weight: 900;
+  line-height: 1.35;
+  margin-bottom: 16rpx;
+}
+
+.manual-grid,
+.stage-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14rpx;
+}
+
+.manual-field {
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 18rpx;
+  border-radius: 16rpx;
+  background-color: #FFFAF6;
+  border: 2rpx solid #EDE5D8;
+}
+
+.manual-input {
+  width: 100%;
+  min-height: 54rpx;
+  margin-top: 6rpx;
+  color: #2A211B;
+  font-size: 25rpx;
+  font-weight: 800;
+}
+
+.manual-textarea {
+  width: 100%;
+  min-height: 150rpx;
+  box-sizing: border-box;
+  padding: 18rpx;
+  border-radius: 16rpx;
+  background-color: #FFFAF6;
+  border: 2rpx solid #EDE5D8;
+  color: #2A211B;
+  font-size: 25rpx;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.manual-textarea.compact {
+  min-height: 96rpx;
+  margin-top: 14rpx;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.section-heading .manual-section-title {
+  margin-bottom: 0;
+}
+
+.stage-add,
+.stage-remove {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 23rpx;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.stage-add {
+  color: #FFFFFF;
+  background-color: var(--page-accent);
+}
+
+.stage-remove {
+  color: #B03030;
+  background-color: #FDECEA;
+}
+
+.stage-editor {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 18rpx;
+  padding: 20rpx;
+  border-radius: 18rpx;
+  background-color: #FAF7F2;
+  border: 2rpx solid #EDE5D8;
+}
+
+.stage-editor-head {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-bottom: 14rpx;
+}
+
+.stage-editor-index {
+  width: 44rpx;
+  height: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 900;
+  border-radius: 50%;
+  background-color: var(--page-accent);
+}
+
+.stage-name-input {
+  min-width: 0;
+  flex: 1;
+  min-height: 54rpx;
+  color: #2A211B;
+  font-size: 27rpx;
+  font-weight: 900;
+}
+
+.preview-block {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 28rpx;
+}
+
+.preview-title {
+  display: block;
+  padding: 0 8rpx 16rpx;
+  color: #2A211B;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.preview-block recipe-card {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}

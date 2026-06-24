@@ -1,0 +1,58 @@
+/* 顶部导航栏 */
+/* 设计：375x56px -> 750x112rpx，bg #E8752A */
+
+.nav-bar {
+  width: 100%;
+  min-height: 112rpx;
+  position: relative;
+  background-color: #E8752A;
+  box-sizing: border-box;
+}
+
+.nav-content {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32rpx;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+}
+
+.nav-left-placeholder {
+  width: 96rpx;
+}
+
+.nav-back-text {
+  font-size: 28rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.nav-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 420rpx;
+  text-align: center;
+}
+
+.nav-title {
+  font-size: 32rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+  line-height: 1.2;
+  word-break: break-all;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}

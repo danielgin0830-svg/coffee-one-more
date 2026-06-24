@@ -1,0 +1,65 @@
+/* 步骤指示器 */
+/* 6 步进度条：选豆 -> 器具 -> 粉量 -> 冲煮水 -> 方案 -> 出方案 */
+
+.step-indicator {
+  width: 750rpx;
+  padding: 24rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.step-labels {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.step-label text {
+  font-size: 20rpx;
+  color: #9A8577;
+  transition: color 0.3s;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.step-label.active text {
+  color: #2A211B;
+  font-weight: 600;
+}
+
+.step-label.done text {
+  color: #E8752A;
+}
+
+.step-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background-color: #EDE5D8;
+  transition: background-color 0.3s;
+}
+
+.step-dot.active {
+  background-color: #E8752A;
+}
+
+.step-line {
+  width: 30rpx;
+  height: 4rpx;
+  background-color: #EDE5D8;
+  margin: 0 5rpx;
+  margin-bottom: 20rpx;
+  border-radius: 2rpx;
+  transition: background-color 0.3s;
+}
+
+.step-line.active {
+  background-color: #E8752A;
+}

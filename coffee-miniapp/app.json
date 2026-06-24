@@ -1,0 +1,53 @@
+{
+  "pages": [
+    "pages/brew/brew",
+    "pages/brew/timer/timer",
+    "pages/recipes/recipes",
+    "pages/recipes/replica/replica",
+    "pages/beans/beans",
+    "pages/equipment/equipment",
+    "pages/login/login",
+    "pages/beans/edit/edit",
+    "pages/equipment/edit/edit"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#E8752A",
+    "navigationBarTitleText": "搞杯喝的",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#FAF7F2",
+    "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#7A6050",
+    "selectedColor": "#E8752A",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/brew/brew",
+        "text": "搞杯喝的"
+      },
+      {
+        "pagePath": "pages/recipes/recipes",
+        "text": "方案存档"
+      },
+      {
+        "pagePath": "pages/beans/beans",
+        "text": "我的豆仓"
+      },
+      {
+        "pagePath": "pages/equipment/equipment",
+        "text": "设备"
+      }
+    ]
+  },
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents",
+  "permission": {
+    "scope.writePhotosAlbum": {
+      "desc": "用于保存冲煮方案分享卡片到相册"
+    }
+  },
+  "sitemapLocation": "sitemap.json"
+}

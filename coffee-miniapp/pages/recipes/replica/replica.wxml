@@ -1,0 +1,140 @@
+<view class="replica-page">
+  <nav-bar title="个人方案复刻" showBack="{{true}}" />
+
+  <scroll-view class="replica-scroll" scroll-y="true">
+    <view class="manual-card">
+      <view class="manual-header">
+        <input class="manual-title-input" value="{{form.beanName}}" data-field="beanName" bindinput="onFieldInput" placeholder="方案名称 / 咖啡豆名称" />
+        <view class="method-inputs">
+          <input class="manual-inline-input" value="{{form.methodName}}" data-field="methodName" bindinput="onFieldInput" placeholder="方案名称，例如 个人方案复刻" />
+          <input class="manual-inline-input muted" value="{{form.methodSource}}" data-field="methodSource" bindinput="onFieldInput" placeholder="来源，例如 个人冲煮记录" />
+        </view>
+      </view>
+
+      <view class="manual-params">
+        <view class="manual-param-item">
+          <text class="manual-param-label">研磨度</text>
+          <input class="manual-param-input" value="{{form.grindSetting}}" data-field="grindSetting" bindinput="onFieldInput" placeholder="例如 C40杯测 +1格" />
+        </view>
+        <view class="manual-param-item">
+          <text class="manual-param-label">水温</text>
+          <input class="manual-param-input" type="digit" value="{{form.waterTemp}}" data-field="waterTemp" bindinput="onFieldInput" placeholder="例如 92" />
+        </view>
+        <view class="manual-param-item">
+          <text class="manual-param-label">总水量</text>
+          <input class="manual-param-input" type="digit" value="{{form.totalWater}}" data-field="totalWater" bindinput="onFieldInput" placeholder="例如 225" />
+        </view>
+        <view class="manual-param-item">
+          <text class="manual-param-label">粉水比</text>
+          <input class="manual-param-input" value="{{form.ratioText}}" data-field="ratioText" bindinput="onFieldInput" placeholder="例如 1:15" />
+        </view>
+      </view>
+
+      <view class="manual-section">
+        <text class="manual-section-title">基础信息</text>
+        <view class="manual-grid">
+          <view class="manual-field">
+            <text class="manual-label">粉量</text>
+            <input class="manual-input" type="digit" value="{{form.doseGrams}}" data-field="doseGrams" bindinput="onFieldInput" placeholder="例如 15" />
+          </view>
+          <view class="manual-field">
+            <text class="manual-label">目标时间</text>
+            <input class="manual-input" value="{{form.targetTime}}" data-field="targetTime" bindinput="onFieldInput" placeholder="例如 2:00-2:35" />
+          </view>
+          <view class="manual-field">
+            <text class="manual-label">滤杯</text>
+            <input class="manual-input" value="{{form.cup}}" data-field="cup" bindinput="onFieldInput" placeholder="例如 V60" />
+          </view>
+          <view class="manual-field">
+            <text class="manual-label">滤纸</text>
+            <input class="manual-input" value="{{form.paper}}" data-field="paper" bindinput="onFieldInput" placeholder="例如 中速滤纸" />
+          </view>
+        </view>
+      </view>
+
+      <view class="manual-section">
+        <text class="manual-section-title">磨豆机参考</text>
+        <textarea class="manual-textarea compact" value="{{form.grinderReference}}" data-field="grinderReference" bindinput="onFieldInput" placeholder="例如 C40：杯测参考 21 格，本杯建议 22 格" />
+        <textarea class="manual-textarea compact" value="{{form.grinderNote}}" data-field="grinderNote" bindinput="onFieldInput" placeholder="补充说明" />
+      </view>
+
+      <view class="manual-section">
+        <text class="manual-section-title">冲煮水</text>
+        <view class="manual-grid">
+          <view class="manual-field">
+            <text class="manual-label">水名</text>
+            <input class="manual-input" value="{{form.waterName}}" data-field="waterName" bindinput="onFieldInput" placeholder="例如 农夫山泉" />
+          </view>
+          <view class="manual-field">
+            <text class="manual-label">TDS</text>
+            <input class="manual-input" type="digit" value="{{form.waterTds}}" data-field="waterTds" bindinput="onFieldInput" placeholder="例如 45" />
+          </view>
+        </view>
+        <textarea class="manual-textarea compact" value="{{form.waterAdjustmentNote}}" data-field="waterAdjustmentNote" bindinput="onFieldInput" placeholder="水质备注" />
+      </view>
+
+      <view class="manual-section">
+        <view class="section-heading">
+          <text class="manual-section-title">注水阶段</text>
+          <view class="stage-add" bindtap="onAddStage">
+            <text>添加阶段</text>
+          </view>
+        </view>
+
+        <view class="stage-editor" wx:for="{{stages}}" wx:key="index">
+          <view class="stage-editor-head">
+            <text class="stage-editor-index">{{index + 1}}</text>
+            <input class="stage-name-input" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="onStageInput" placeholder="阶段名称" />
+            <view class="stage-remove" wx:if="{{stages.length > 1}}" data-index="{{index}}" bindtap="onRemoveStage">
+              <text>删除</text>
+            </view>
+          </view>
+          <view class="stage-editor-grid">
+            <view class="manual-field">
+              <text class="manual-label">目标水量</text>
+              <input class="manual-input" type="digit" value="{{item.water}}" data-index="{{index}}" data-field="water" bindinput="onStageInput" placeholder="例如 45" />
+            </view>
+            <view class="manual-field">
+              <text class="manual-label">注水时间</text>
+              <input class="manual-input" value="{{item.duration}}" data-index="{{index}}" data-field="duration" bindinput="onStageInput" placeholder="例如 0:30" />
+            </view>
+          </view>
+          <textarea class="manual-textarea compact" value="{{item.pourStyle}}" data-index="{{index}}" data-field="pourStyle" bindinput="onStageInput" placeholder="注水注意事项" />
+        </view>
+      </view>
+
+      <view class="manual-section">
+        <text class="manual-section-title">注意事项</text>
+        <textarea class="manual-textarea" value="{{form.risksText}}" data-field="risksText" bindinput="onFieldInput" placeholder="每行一条，可留空" />
+      </view>
+    </view>
+
+    <view class="preview-block">
+      <text class="preview-title">方案预览</text>
+      <recipe-card
+        wx:if="{{previewRecipe}}"
+        recipe="{{previewRecipe}}"
+        showFeedback="{{false}}"
+        retryText="返回存档"
+        bind:retry="onBackToArchive"
+        bind:sharecard="onShareCard"
+        bind:save="onSaveReplica"
+      />
+    </view>
+  </scroll-view>
+
+  <canvas class="share-canvas" canvas-id="shareRecipeCanvas"></canvas>
+
+  <view class="share-card-mask" wx:if="{{shareCardVisible}}">
+    <view class="share-card-panel">
+      <text class="share-card-title">朋友圈分享小卡片</text>
+      <image class="share-card-image" src="{{shareCardImage}}" mode="widthFix" />
+      <view class="share-card-actions">
+        <button class="share-card-secondary" bindtap="onCloseShareCard">关闭</button>
+        <button class="share-card-secondary" open-type="share">发给朋友</button>
+        <button class="share-card-primary" bindtap="onSaveShareCard">保存图片</button>
+      </view>
+      <text class="share-card-hint">保存图片后可发朋友圈；页面右上角菜单也可分享给朋友。</text>
+    </view>
+  </view>
+</view>

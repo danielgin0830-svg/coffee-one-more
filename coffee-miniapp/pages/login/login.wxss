@@ -1,0 +1,132 @@
+.login-page {
+  min-height: 100vh;
+  background-color: #FAF7F2;
+  box-sizing: border-box;
+}
+
+.login-content {
+  box-sizing: border-box;
+  padding: 72rpx 40rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 48rpx;
+}
+
+.brand-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.brand-mark {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 24rpx;
+  background-color: #E8752A;
+  color: #FFFFFF;
+  font-size: 40rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-title {
+  font-size: 56rpx;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #2A211B;
+}
+
+.brand-subtitle {
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: #7A6050;
+}
+
+.login-panel {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 32rpx;
+  background-color: #FFFFFF;
+  border: 2rpx solid #EDE5D8;
+  border-radius: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.field-label {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #2A211B;
+}
+
+.nickname-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 88rpx;
+  padding: 0 24rpx;
+  background-color: #FAF7F2;
+  border: 2rpx solid #EDE5D8;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #2A211B;
+}
+
+.login-panel button::after {
+  border: none;
+}
+
+.login-button {
+  box-sizing: border-box;
+  width: 100%;
+  height: 84rpx;
+  margin: 8rpx 0 0;
+  border-radius: 16rpx;
+  background-color: #E8752A;
+  color: #FFFFFF;
+  font-size: 30rpx;
+  font-weight: 800;
+  line-height: 1.2;
+  padding: 0;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.login-button[disabled] {
+  background-color: #D6CCC4;
+  color: #FFFFFF;
+}
+
+.browse-button {
+  box-sizing: border-box;
+  width: 100%;
+  height: 76rpx;
+  margin: 0;
+  border-radius: 16rpx;
+  background-color: #FFFAF6;
+  border: 2rpx solid #EDE5D8;
+  color: #7A6050;
+  font-size: 27rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.browse-button[disabled] {
+  color: #9E8F88;
+}
+
+.login-note {
+  font-size: 22rpx;
+  line-height: 1.55;
+  color: #7A6050;
+}

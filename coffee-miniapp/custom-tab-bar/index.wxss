@@ -1,0 +1,94 @@
+.custom-tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  box-sizing: border-box;
+  padding: 14rpx 24rpx calc(18rpx + constant(safe-area-inset-bottom));
+  padding: 14rpx 24rpx calc(18rpx + env(safe-area-inset-bottom));
+  background-color: rgba(250, 247, 242, 0.96);
+  border-top: 1rpx solid #EDE5D8;
+  box-shadow: 0 -10rpx 28rpx rgba(45, 36, 32, 0.08);
+}
+
+.tab-shell {
+  width: 100%;
+  height: 92rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx;
+  background-color: #FFFFFF;
+  border: 2rpx solid #EDE5D8;
+  border-radius: 28rpx;
+}
+
+.tab-item {
+  min-width: 0;
+  flex: 1;
+  height: 76rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8rpx;
+  border-radius: 22rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.2s;
+}
+
+.tab-label {
+  max-width: 100%;
+  font-family: "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei", sans-serif;
+  font-size: 25rpx;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #7A6050;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tab-item.active {
+  box-shadow: 0 6rpx 18rpx rgba(45, 36, 32, 0.08);
+}
+
+.tab-0.active {
+  background-color: #FFFAF6;
+  border-color: #E8752A;
+}
+
+.tab-0.active .tab-label {
+  color: #C85D1D;
+}
+
+.tab-1.active {
+  background-color: #FFF4DE;
+  border-color: #D99A36;
+}
+
+.tab-1.active .tab-label {
+  color: #9B6420;
+}
+
+.tab-2.active {
+  background-color: #EEF7F1;
+  border-color: #3E9A5E;
+}
+
+.tab-2.active .tab-label {
+  color: #2F7848;
+}
+
+.tab-3.active {
+  background-color: #EDF4F6;
+  border-color: #5B7F8F;
+}
+
+.tab-3.active .tab-label {
+  color: #3E6170;
+}

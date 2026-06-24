@@ -1,0 +1,243 @@
+/* 全局样式 */
+
+/* CSS 变量定义 */
+page {
+  --orange-50: #FAF7F2;      /* 页面背景 */
+  --orange-100: #EDE5D8;     /* 卡片边框 */
+  --orange-200: #EDE5D8;
+  --orange-300: #F0A86F;
+  --orange-400: #E8752A;     /* 主色 */
+  --orange-500: #C85D1D;     /* 深橙 */
+  --orange-600: #9B4213;
+  --selected-bg: #FFFAF6;
+  --accent-brew: #E8752A;
+  --accent-brew-dark: #C85D1D;
+  --accent-archive: #D99A36;
+  --accent-archive-dark: #9B6420;
+  --accent-archive-light: #FFF4DE;
+  --accent-beans: #3E9A5E;
+  --accent-beans-dark: #2F7848;
+  --accent-beans-light: #EEF7F1;
+  --accent-equipment: #5B7F8F;
+  --accent-equipment-dark: #3E6170;
+  --accent-equipment-light: #EDF4F6;
+
+  --neutral-900: #2A211B;    /* 主文字 */
+  --neutral-700: #7A6050;    /* 次要文字 */
+  --neutral-500: #9A8577;    /* 占位/禁用 */
+  --neutral-300: #EDE5D8;    /* 分割线 */
+  --neutral-100: #EDE5D8;    /* 背景层 */
+  --neutral-50: #FFFFFF;     /* 卡片背景 */
+
+  --success: #3E9A5E;        /* 成功 */
+  --success-light: #EEF7F1;  /* 浅绿背景 */
+  --error: #E05050;          /* 错误 */
+  --warning: #E8A020;        /* 警告 */
+  --info: #5080A0;           /* 信息 */
+
+  --coffee-crema: #E8B860;
+  --coffee-light-roast: #D4A574;
+  --coffee-medium-roast: #A67B5B;
+  --coffee-dark-roast: #6B4226;
+  --coffee-espresso: #3C1F10;
+
+  --bg-primary: var(--orange-50);
+  --bg-nav: var(--orange-400);
+  --bg-card: var(--neutral-50);
+  --border-card: var(--orange-100);
+  --text-primary: var(--neutral-900);
+  --text-secondary: var(--neutral-700);
+  --text-white: #FFFFFF;
+  --text-muted: var(--neutral-500);
+
+  background-color: var(--bg-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Cabin", "Helvetica Neue", sans-serif;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+view, text, scroll-view, swiper, swiper-item {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* 通用按钮 */
+.btn-primary {
+  background-color: var(--orange-400);
+  color: #FFFFFF;
+  border-radius: 24rpx;
+  font-size: 28rpx;
+  text-align: center;
+  border: none;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--orange-400);
+  border: 2rpx solid var(--orange-400);
+  border-radius: 24rpx;
+  font-size: 28rpx;
+  text-align: center;
+}
+
+/* 通用标签 */
+.tag {
+  display: inline-block;
+  background-color: #FFFAF6;
+  color: var(--orange-600);
+  border: 1rpx solid var(--orange-400);
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  margin-right: 8rpx;
+}
+
+.tag-success {
+  background-color: var(--success-light);
+  color: #2A7040;
+  border-color: var(--success);
+}
+
+.tag-neutral {
+  background-color: var(--orange-50);
+  color: var(--neutral-700);
+  border-color: var(--neutral-300);
+}
+
+.tag-outline {
+  background-color: transparent;
+  color: var(--orange-400);
+  border: 1rpx solid var(--orange-400);
+}
+
+/* 通用卡片 */
+.card {
+  background-color: var(--neutral-50);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  border: 1rpx solid var(--orange-100);
+}
+
+/* 标题 */
+.title-lg {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.title-md {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 分割线 */
+.divider {
+  height: 1rpx;
+  background-color: var(--orange-100);
+  margin: 16rpx 0;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 40rpx;
+  color: var(--neutral-500);
+}
+
+/* 分享卡片预览 */
+.share-canvas {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  width: 600px;
+  height: 700px;
+}
+
+.share-card-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 32rpx;
+  background-color: rgba(42, 33, 27, 0.48);
+}
+
+.share-card-panel {
+  width: 100%;
+  max-width: 660rpx;
+  max-height: 92vh;
+  padding: 28rpx;
+  border-radius: 32rpx;
+  background-color: #FFFFFF;
+  border: 2rpx solid #EDE5D8;
+  box-shadow: 0 24rpx 72rpx rgba(42, 33, 27, 0.22);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.share-card-title {
+  width: 100%;
+  color: #2A211B;
+  font-size: 32rpx;
+  font-weight: 800;
+  text-align: center;
+}
+
+.share-card-image {
+  width: 100%;
+  border-radius: 24rpx;
+  border: 2rpx solid #EDE5D8;
+  overflow: hidden;
+  background-color: #FAF7F2;
+}
+
+.share-card-actions {
+  width: 100%;
+  display: flex;
+  gap: 12rpx;
+}
+
+.share-card-primary,
+.share-card-secondary {
+  min-width: 0;
+  flex: 1;
+  height: 76rpx;
+  border-radius: 22rpx;
+  font-size: 25rpx;
+  font-weight: 800;
+  line-height: 76rpx;
+  padding: 0;
+}
+
+.share-card-primary {
+  color: #FFFFFF;
+  background-color: #3E9A5E;
+  border: none;
+}
+
+.share-card-secondary {
+  color: #E8752A;
+  background-color: #FFFAF6;
+  border: 2rpx solid #F0A86F;
+}
+
+.share-card-hint {
+  width: 100%;
+  color: #7A6050;
+  font-size: 22rpx;
+  line-height: 1.45;
+  text-align: center;
+}

@@ -1,0 +1,104 @@
+<view class="recipes-page">
+  <nav-bar title="方案存档" />
+
+  <view class="archive-options">
+    <view class="replica-option" bindtap="onPersonalReplica">
+      <view class="replica-main">
+        <text class="replica-title">个人方案复刻</text>
+        <text class="replica-desc">个人冲煮记录，不参与小程序方案联动，仅用于记录与分享。</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="archive-actions" wx:if="{{recipes.length > 0}}">
+    <view class="batch-btn {{batchMode ? 'active' : ''}}" bindtap="onToggleBatchMode">
+      <text>{{batchMode ? '取消批量管理' : '批量管理'}}</text>
+    </view>
+  </view>
+
+  <view class="batch-toolbar" wx:if="{{batchMode}}">
+    <view class="batch-action" bindtap="onToggleSelectAll">
+      <text>{{selectedBatchIds.length === recipes.length ? '取消全选' : '全选'}}</text>
+    </view>
+    <text class="batch-count">已选 {{selectedBatchIds.length}} 条</text>
+    <view class="batch-delete {{selectedBatchIds.length ? '' : 'disabled'}}" bindtap="onDeleteSelected">
+      <text>删除</text>
+    </view>
+  </view>
+
+  <scroll-view class="recipes-list" scroll-y="true" wx:if="{{recipes.length > 0}}">
+    <view
+      class="archive-card {{expandedRecipeId === item.archiveId ? 'expanded' : ''}} {{item.batchSelected ? 'selected' : ''}}"
+      wx:for="{{recipes}}"
+      wx:key="archiveId"
+    >
+      <view class="archive-summary" bindtap="onToggleRecipe" data-id="{{item.archiveId}}">
+        <view class="archive-check {{item.batchSelected ? 'checked' : ''}}" wx:if="{{batchMode}}">
+          <text>{{item.batchSelected ? '✓' : ''}}</text>
+        </view>
+        <view class="archive-main">
+          <view class="archive-title-row">
+            <text class="archive-title">{{item.beanName || '未命名方案'}}</text>
+            <text class="archive-star" wx:if="{{item.bookmarked}}">★</text>
+          </view>
+          <text class="archive-method">{{item.archiveMethod}}</text>
+          <text class="archive-meta">{{item.archiveMeta}}</text>
+          <view class="archive-feedback-chip archive-feedback-{{item.archiveFeedbackTone}}" wx:if="{{item.archiveFeedbackLabel}}">
+            <text>{{item.archiveFeedbackLabel}}</text>
+          </view>
+        </view>
+        <view class="archive-side">
+          <text class="archive-date">{{item.archiveDate}}</text>
+          <text class="archive-toggle" wx:if="{{!batchMode}}">{{expandedRecipeId === item.archiveId ? '收起' : '展开'}}</text>
+        </view>
+      </view>
+
+      <view class="archive-detail" wx:if="{{expandedRecipeId === item.archiveId}}">
+        <view class="archive-feedback-detail archive-feedback-detail-{{item.archiveFeedbackTone}}" wx:if="{{item.feedback}}">
+          <text class="archive-feedback-detail-title">风味反馈 · {{item.feedback.label}}</text>
+          <text class="archive-feedback-detail-text">{{item.archiveFeedbackText}}</text>
+          <text class="archive-feedback-detail-grind" wx:if="{{item.archiveFeedbackGrind}}">{{item.archiveFeedbackGrind}}</text>
+          <text class="archive-feedback-detail-next" wx:if="{{item.archiveFeedbackNext}}">{{item.archiveFeedbackNext}}</text>
+        </view>
+        <recipe-card
+          recipe="{{item}}"
+          showSave="{{false}}"
+          showFeedback="{{false}}"
+          showBrewStart="{{true}}"
+          bind:bookmark="onBookmark"
+          bind:retry="onRetry"
+          bind:sharecard="onShareCard"
+          bind:startbrew="onStartBrewTimer"
+        />
+        <view class="archive-rebrew-card" bindtap="onRebrewFromArchive" data-id="{{item.archiveId}}">
+          <text>马上再来一杯吧</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="list-footer">
+      <text class="footer-text">共 {{recipes.length}} 条方案</text>
+    </view>
+  </scroll-view>
+
+  <view class="empty-state" wx:if="{{recipes.length === 0}}">
+    <text class="empty-icon">□</text>
+    <text class="empty-title">还没有保存的方案</text>
+    <text class="empty-desc">去“搞杯喝的”生成你的第一条冲煮方案吧</text>
+    <button class="btn-primary-empty" bindtap="onGoBrew">去冲一杯</button>
+  </view>
+
+  <canvas class="share-canvas" canvas-id="shareRecipeCanvas"></canvas>
+
+  <view class="share-card-mask" wx:if="{{shareCardVisible}}">
+    <view class="share-card-panel">
+      <text class="share-card-title">朋友圈分享小卡片</text>
+      <image class="share-card-image" src="{{shareCardImage}}" mode="widthFix" />
+      <view class="share-card-actions">
+        <button class="share-card-secondary" bindtap="onCloseShareCard">关闭</button>
+        <button class="share-card-secondary" open-type="share">发给朋友</button>
+        <button class="share-card-primary" bindtap="onSaveShareCard">保存图片</button>
+      </view>
+    </view>
+  </view>
+</view>

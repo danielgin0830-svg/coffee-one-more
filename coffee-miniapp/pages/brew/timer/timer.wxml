@@ -1,0 +1,75 @@
+<view class="timer-page">
+  <view class="timer-top">
+    <button class="nav-btn" bindtap="onExit">退出</button>
+    <view class="timer-title-wrap">
+      <text class="timer-title">{{recipeTitle}}</text>
+      <text class="timer-subtitle">{{recipeMeta}}</text>
+    </view>
+  </view>
+
+  <view class="timer-main" wx:if="{{currentStage}}">
+    <view class="stage-count">
+      <text>阶段 {{currentStage.stageIndex}} / {{stages.length}}</text>
+    </view>
+
+    <text class="stage-name">{{currentStage.name}}</text>
+
+    <view class="time-panel single">
+      <view class="time-block active">
+        <text class="time-label">总计时</text>
+        <text class="time-value">{{elapsedLabel}}</text>
+      </view>
+    </view>
+
+    <view class="node-card">
+      <view class="node-item">
+        <text class="node-label">目标水量</text>
+        <text class="node-value">{{currentStage.waterLabel}}</text>
+      </view>
+      <view class="node-item">
+        <text class="node-label">{{currentStage.timeLabel}}</text>
+        <text class="node-value">{{currentStage.endLabel}}</text>
+      </view>
+    </view>
+
+    <view class="prompt-card">
+      <text class="prompt-label">当前提示</text>
+      <text class="prompt-text">{{currentStage.prompt}}</text>
+    </view>
+
+    <view class="progress-wrap">
+      <view class="progress-track">
+        <view class="progress-fill" style="width: {{progressPercent}}%;"></view>
+      </view>
+      <view class="progress-markers">
+        <view
+          wx:for="{{progressMarkers}}"
+          wx:key="id"
+          class="progress-marker {{item.reached ? 'active' : ''}} {{item.edge}}"
+          style="left: {{item.percent}}%;"
+        >
+          <view class="progress-dot"></view>
+          <text class="progress-marker-label">{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="finish-card" wx:if="{{isFinished}}" bindtap="onReturnRecipe">
+      <text class="finish-title">本次冲煮完成</text>
+      <text class="finish-action">返回方案</text>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:else>
+    <text>没有读取到冲煮方案</text>
+  </view>
+
+  <view class="timer-actions">
+    <view class="timer-main-actions">
+      <button class="control-btn ghost" bindtap="onPrevStage">上一段</button>
+      <button class="control-btn primary" bindtap="onToggleTimer">{{running ? '暂停' : (elapsedSeconds ? '继续' : '开始')}}</button>
+      <button class="control-btn ghost" bindtap="onNextStage">下一段</button>
+    </view>
+    <button class="control-btn reset" bindtap="onReset">重置</button>
+  </view>
+</view>

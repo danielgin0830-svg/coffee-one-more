@@ -1,0 +1,255 @@
+<view class="brew-page">
+  <nav-bar title="搞杯喝的" />
+
+  <step-indicator currentStep="{{currentStep}}" />
+
+  <view class="step-content bean-step-content" wx:if="{{currentStep === 1}}">
+    <view class="step-header">
+      <text class="step-title">选择咖啡豆</text>
+      <text class="step-desc">从你的豆仓中选择一款豆子</text>
+    </view>
+
+    <view class="lucky-bean-card" wx:if="{{beans.length > 0}}" bindtap="onLuckyBeanPick">
+      <view class="lucky-bean-copy">
+        <text class="lucky-bean-title">神之一抽</text>
+        <text class="lucky-bean-desc">从库存里随机抽一只养豆 10 天以上的豆子</text>
+      </view>
+      <view class="lucky-bean-action">
+        <text>可抽 {{luckyBeanCount}} 只</text>
+      </view>
+    </view>
+
+    <scroll-view class="filter-row" wx:if="{{beans.length > 0}}" scroll-x="true">
+      <view class="filter-tag {{filterProcessing === 'all' ? 'active' : ''}}" bindtap="onFilter" data-type="all">
+        <text>全部</text>
+      </view>
+      <view class="filter-tag {{filterProcessing === 'washed' ? 'active' : ''}}" bindtap="onFilter" data-type="washed">
+        <text>水洗</text>
+      </view>
+      <view class="filter-tag {{filterProcessing === 'natural' ? 'active' : ''}}" bindtap="onFilter" data-type="natural">
+        <text>日晒</text>
+      </view>
+      <view class="filter-tag {{filterProcessing === 'honey' ? 'active' : ''}}" bindtap="onFilter" data-type="honey">
+        <text>蜜处理</text>
+      </view>
+      <view class="filter-tag {{filterProcessing === 'other' ? 'active' : ''}}" bindtap="onFilter" data-type="other">
+        <text>其他</text>
+      </view>
+    </scroll-view>
+
+    <scroll-view class="bean-list" scroll-y="true" wx:if="{{beans.length > 0 || archivedBeans.length > 0}}">
+      <block wx:if="{{filteredBeans.length > 0}}">
+        <bean-card
+          wx:for="{{filteredBeans}}"
+          wx:key="id"
+          bean="{{item}}"
+          selected="{{selectedBean && selectedBean.id === item.id}}"
+          showCheck="{{true}}"
+          bind:select="onSelectBean"
+        />
+      </block>
+      <view class="inline-empty" wx:elif="{{beans.length > 0}}">
+        <text>当前筛选下没有豆子</text>
+      </view>
+      <view class="inline-empty" wx:else>
+        <text>当前没有可冲煮库存</text>
+      </view>
+
+      <view class="finished-beans-card" wx:if="{{archivedBeans.length > 0}}">
+        <view class="finished-beans-header" bindtap="onToggleArchivedBeans">
+          <view class="finished-beans-copy">
+            <text class="finished-beans-title">喝完的豆豆们</text>
+            <text class="finished-beans-desc">{{archivedBeans.length}} 款库存为 0 的豆子</text>
+          </view>
+          <text class="finished-beans-arrow">{{archivedBeansExpanded ? '收起' : '展开'}}</text>
+        </view>
+        <view class="finished-beans-list" wx:if="{{archivedBeansExpanded}}">
+          <bean-card
+            wx:for="{{archivedBeans}}"
+            wx:key="id"
+            bean="{{item}}"
+            bind:select="onTapArchivedBean"
+          />
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="empty-state bean-empty-state" wx:if="{{allBeanCount === 0}}">
+      <text class="empty-icon">□</text>
+      <text class="empty-title">豆仓空空如也</text>
+      <text class="empty-text">先添加一款咖啡豆，再开始冲煮</text>
+      <view class="empty-action-cards">
+        <view class="empty-action-card quick" bindtap="onEmptyQuickAddBean">
+          <text class="empty-action-icon">拍</text>
+          <view class="empty-action-copy">
+            <text class="empty-action-title">秒拍入库</text>
+            <text class="empty-action-desc">拍包装，自动预填豆子信息</text>
+          </view>
+        </view>
+        <view class="empty-action-card manual" bindtap="onEmptyAddBean">
+          <text class="empty-action-icon">+</text>
+          <view class="empty-action-copy">
+            <text class="empty-action-title">手动添加</text>
+            <text class="empty-action-desc">自己填写豆子信息</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view class="step-content equip-step-content" scroll-y="true" wx:if="{{currentStep === 2}}">
+    <view class="step-header">
+      <text class="step-title">选择冲煮器具</text>
+      <text class="step-desc">确认你的滤杯和滤纸</text>
+    </view>
+
+    <view class="equip-section">
+      <text class="equip-section-title">滤杯</text>
+      <view class="equip-option {{selectedCup === item.id ? 'active' : ''}}" wx:for="{{cups}}" wx:key="id" bindtap="onSelectCup" data-cup="{{item.id}}">
+        <view class="equip-radio {{selectedCup === item.id ? 'checked' : ''}}"></view>
+        <view class="equip-info">
+          <text class="equip-name">{{item.label}}</text>
+          <text class="equip-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="equip-section">
+      <text class="equip-section-title">滤纸</text>
+      <view class="equip-option {{selectedPaper === item.id ? 'active' : ''}}" wx:for="{{papers}}" wx:key="id" bindtap="onSelectPaper" data-paper="{{item.id}}">
+        <view class="equip-radio {{selectedPaper === item.id ? 'checked' : ''}}"></view>
+        <view class="equip-info">
+          <text class="equip-name">{{item.label}}</text>
+          <text class="equip-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="step-content" wx:if="{{currentStep === 3}}">
+    <view class="step-header">
+      <text class="step-title">选择粉量</text>
+      <text class="step-desc">确定这次冲煮的咖啡粉用量</text>
+    </view>
+
+    <view class="dose-options">
+      <view class="dose-card {{doseGrams === item.grams ? 'active' : ''}}" wx:for="{{doseOptions}}" wx:key="grams" bindtap="onSelectDose" data-dose="{{item.grams}}">
+        <view class="dose-header">
+          <view class="dose-radio {{doseGrams === item.grams ? 'checked' : ''}}"></view>
+          <text class="dose-value">{{item.title}}</text>
+        </view>
+        <text class="dose-desc">{{item.desc}}</text>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view class="step-content water-step-content" scroll-y="true" scroll-into-view="{{waterScrollTarget}}" scroll-with-animation="{{true}}" wx:if="{{currentStep === 4}}">
+    <view class="step-header">
+      <text class="step-title">冲煮水</text>
+      <text class="step-desc">选择常见瓶装水，或填写实测 TDS</text>
+    </view>
+
+    <view class="water-options">
+      <view class="water-card {{selectedWaterId === item.id ? 'active' : ''}}" wx:for="{{waterOptions}}" wx:key="id" bindtap="onSelectWater" data-water="{{item.id}}">
+        <view class="water-radio {{selectedWaterId === item.id ? 'checked' : ''}}"></view>
+        <view class="water-info">
+          <view class="water-heading">
+            <text class="water-name">{{item.name}}</text>
+            <text class="water-tds">{{item.id === 'custom' ? '手动' : item.tds + ' ppm'}}</text>
+          </view>
+          <text class="water-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view id="custom-tds-input" class="tds-input-card" wx:if="{{showCustomWaterTds}}">
+      <text class="tds-label">水质 TDS</text>
+      <input class="tds-input" type="digit" value="{{customWaterTds}}" focus="{{customWaterFocus}}" placeholder="输入 0-500，例如 80" bindinput="onCustomWaterTdsInput" />
+      <text class="tds-hint">建议使用水质笔实测；TDS 只能作为当前框架的轻量修正，不等同于完整水质报告。</text>
+    </view>
+  </scroll-view>
+
+  <scroll-view class="step-content plan-step-content" scroll-y="true" wx:if="{{currentStep === 5}}">
+    <view class="step-header">
+      <text class="step-title">选方案</text>
+      <text class="step-desc">选择本次冲煮方案来源</text>
+    </view>
+
+    <view class="plan-options">
+      <view class="plan-card {{selectedPlanType === 'personal' ? 'active' : ''}}" bindtap="onSelectPlanType" data-type="personal">
+        <view class="plan-radio {{selectedPlanType === 'personal' ? 'checked' : ''}}"></view>
+        <view class="plan-info">
+          <text class="plan-title">生成定制化方案</text>
+          <text class="plan-desc">按当前框架，根据风味描述、器具、滤纸、粉量和冲煮水 TDS 实时推导。</text>
+        </view>
+      </view>
+
+      <view class="plan-card {{selectedPlanType === 'classic' ? 'active' : ''}}" bindtap="onSelectPlanType" data-type="classic">
+        <view class="plan-radio {{selectedPlanType === 'classic' ? 'checked' : ''}}"></view>
+        <view class="plan-info">
+          <text class="plan-title">使用经典方案</text>
+          <text class="plan-desc">从 {{classicMethodCount}} 个标准手冲方案中手动选择，并按当前粉量换算水量。</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="classic-methods" wx:if="{{selectedPlanType === 'classic'}}">
+      <text class="classic-title">选择经典方案</text>
+      <view class="classic-card {{selectedClassicMethodId === item._id ? 'active' : ''}}" wx:for="{{classicMethods}}" wx:key="_id" bindtap="onSelectClassicMethod" data-id="{{item._id}}">
+        <view class="classic-radio {{selectedClassicMethodId === item._id ? 'checked' : ''}}"></view>
+        <view class="classic-info">
+          <view class="classic-heading">
+            <text class="classic-name">{{item.short_name || item.method_name}}</text>
+            <text class="classic-difficulty">{{item.difficulty}}</text>
+          </view>
+          <text class="classic-summary">{{item.display_summary}}</text>
+          <text class="classic-meta">{{item.default_params.ratio}} · {{item.default_params.target_time}}</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <scroll-view class="step-content recipe-step-content" scroll-y="true" wx:if="{{currentStep === 6}}">
+    <view class="step-header">
+      <text class="step-title">你的冲煮方案</text>
+      <text class="step-desc">按以下参数操作，享受一杯好咖啡</text>
+    </view>
+
+    <recipe-card
+      wx:if="{{recipe}}"
+      recipe="{{recipe}}"
+      showBackButton="{{true}}"
+      showBrewStart="{{true}}"
+      allowSavedUpdate="{{rebrewArchiveMode}}"
+      saveText="{{rebrewArchiveMode ? '更新方案' : '保存方案'}}"
+      bind:bookmark="onBookmark"
+      bind:feedback="onFlavorFeedback"
+      bind:back="onBackFromRecipe"
+      bind:retry="onRetry"
+      bind:sharecard="onShareCard"
+      bind:startbrew="onStartBrewTimer"
+      bind:save="onSaveRecipe"
+    />
+  </scroll-view>
+
+  <view class="bottom-actions" wx:if="{{currentStep < 6}}">
+    <button class="btn-secondary" wx:if="{{currentStep > 1}}" bindtap="onPrevStep">上一步</button>
+    <button class="btn-primary" bindtap="onNextStep" disabled="{{!canProceed}}">
+      {{currentStep === 5 ? '生成方案' : '下一步'}}
+    </button>
+  </view>
+
+  <canvas class="share-canvas" canvas-id="shareRecipeCanvas"></canvas>
+
+  <view class="share-card-mask" wx:if="{{shareCardVisible}}">
+    <view class="share-card-panel">
+      <text class="share-card-title">朋友圈分享小卡片</text>
+      <image class="share-card-image" src="{{shareCardImage}}" mode="widthFix" />
+      <view class="share-card-actions">
+        <button class="share-card-secondary" bindtap="onCloseShareCard">关闭</button>
+        <button class="share-card-secondary" open-type="share">发给朋友</button>
+        <button class="share-card-primary" bindtap="onSaveShareCard">保存图片</button>
+      </view>
+    </view>
+  </view>
+</view>

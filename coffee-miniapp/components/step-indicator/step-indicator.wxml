@@ -1,0 +1,33 @@
+<view class="step-indicator">
+  <view class="step-labels">
+    <view class="step-label {{currentStep >= 1 ? 'active' : ''}} {{currentStep > 1 ? 'done' : ''}}">
+      <view class="step-dot {{currentStep >= 1 ? 'active' : ''}}"></view>
+      <text>选豆</text>
+    </view>
+    <view class="step-line {{currentStep > 1 ? 'active' : ''}}"></view>
+    <view class="step-label {{currentStep >= 2 ? 'active' : ''}} {{currentStep > 2 ? 'done' : ''}}">
+      <view class="step-dot {{currentStep >= 2 ? 'active' : ''}}"></view>
+      <text>器具</text>
+    </view>
+    <view class="step-line {{currentStep > 2 ? 'active' : ''}}"></view>
+    <view class="step-label {{currentStep >= 3 ? 'active' : ''}} {{currentStep > 3 ? 'done' : ''}}">
+      <view class="step-dot {{currentStep >= 3 ? 'active' : ''}}"></view>
+      <text>粉量</text>
+    </view>
+    <view class="step-line {{currentStep > 3 ? 'active' : ''}}"></view>
+    <view class="step-label {{currentStep >= 4 ? 'active' : ''}} {{currentStep > 4 ? 'done' : ''}}">
+      <view class="step-dot {{currentStep >= 4 ? 'active' : ''}}"></view>
+      <text>水质</text>
+    </view>
+    <view class="step-line {{currentStep > 4 ? 'active' : ''}}"></view>
+    <view class="step-label {{currentStep >= 5 ? 'active' : ''}} {{currentStep > 5 ? 'done' : ''}}">
+      <view class="step-dot {{currentStep >= 5 ? 'active' : ''}}"></view>
+      <text>方案</text>
+    </view>
+    <view class="step-line {{currentStep > 5 ? 'active' : ''}}"></view>
+    <view class="step-label {{currentStep >= 6 ? 'active' : ''}}">
+      <view class="step-dot {{currentStep >= 6 ? 'active' : ''}}"></view>
+      <text>开喝</text>
+    </view>
+  </view>
+</view>

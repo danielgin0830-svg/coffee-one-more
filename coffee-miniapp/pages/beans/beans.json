@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/nav-bar",
+    "bean-card": "/components/bean-card/bean-card"
+  }
+}

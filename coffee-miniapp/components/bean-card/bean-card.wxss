@@ -1,0 +1,190 @@
+/* 豆子卡片 */
+/* 设计：335xauto，bg #FFF，border #EDE5D8，cornerRadius 24rpx */
+
+.bean-card {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx 24rpx;
+  background-color: #FFFFFF;
+  border: 3rpx solid #E8752A;
+  border-radius: 22rpx;
+  font-family: "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei", sans-serif;
+  font-weight: 600;
+  box-shadow: 0 5rpx 16rpx rgba(232, 117, 42, 0.08);
+  transition: background-color 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+.bean-card.selected {
+  border-color: #E8752A;
+  background-color: #FFFAF6;
+  box-shadow: 0 4rpx 24rpx rgba(232, 117, 42, 0.20);
+}
+
+.bean-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  flex: 1;
+  min-width: 0;
+  margin-right: 16rpx;
+}
+
+.bean-main-line {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 14rpx;
+}
+
+.bean-name {
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 52%;
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #2A211B;
+  line-height: 1.25;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bean-origin {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  font-size: 22rpx;
+  color: #7A6050;
+  line-height: 1.4;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bean-detail-line {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8rpx;
+  overflow: hidden;
+}
+
+.roast-age-badge,
+.tag {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  max-width: 46%;
+  padding: 5rpx 12rpx;
+  border-radius: 18rpx;
+  font-size: 20rpx;
+  line-height: 1.3;
+  border: 1rpx solid transparent;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.roast-age-badge text,
+.tag text {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.stock-badge {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 184rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  background-color: #FFFAF6;
+  border: 2rpx solid #E8752A;
+  color: #C85D1D;
+  font-size: 28rpx;
+  font-weight: 800;
+  line-height: 1.2;
+  box-shadow: 0 4rpx 12rpx rgba(232, 117, 42, 0.12);
+}
+
+.stock-badge text {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.roast-age-badge.fresh {
+  background-color: #FFFAF6;
+  border-color: #E8752A;
+  color: #9B4213;
+}
+
+.roast-age-badge.ready {
+  background-color: #EEF7F1;
+  border-color: #3E9A5E;
+  color: #2A7040;
+}
+
+.roast-age-badge.old {
+  background-color: #FDECEA;
+  border-color: #D94F4F;
+  color: #B03030;
+}
+
+.roast-age-badge.unknown {
+  background-color: #EDE5D8;
+  border-color: #EDE5D8;
+  color: #7A6050;
+}
+
+.tag {
+  background-color: #EEF7F1;
+  border: 1rpx solid #3E9A5E;
+  color: #2A7040;
+}
+
+.bean-side {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10rpx;
+  max-width: 258rpx;
+}
+
+.bean-arrow {
+  flex-shrink: 0;
+  font-size: 36rpx;
+  color: #9A8577;
+  margin-left: 0;
+}
+
+.bean-check {
+  flex-shrink: 0;
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #E8752A;
+  border-radius: 50%;
+  font-size: 28rpx;
+  color: #FFFFFF;
+  margin-left: 0;
+}

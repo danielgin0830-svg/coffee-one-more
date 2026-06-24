@@ -1,0 +1,212 @@
+<view class="beans-page">
+  <nav-bar title="我的豆仓" />
+
+  <view class="beans-hero">
+    <view class="hero-main">
+      <view class="hero-copy">
+        <text class="hero-title">我的豆仓</text>
+        <text class="hero-subtitle">共 {{totalBeanCount}} 款 · 总库存 {{totalStockGrams}} 克</text>
+      </view>
+      <view class="hero-stock">
+        <text class="hero-stock-value">{{totalStockGrams}}</text>
+        <text class="hero-stock-unit">克</text>
+      </view>
+    </view>
+
+    <view class="hero-actions">
+      <view class="quick-add-btn" wx:if="{{!batchMode}}" bindtap="onQuickAddBean">
+        <text class="quick-add-icon">拍</text>
+        <text class="quick-add-text">秒拍入库</text>
+      </view>
+      <view class="add-btn" wx:if="{{!batchMode}}" bindtap="onAddBean">
+        <text class="add-icon">+</text>
+        <text class="add-text">手动添加</text>
+      </view>
+      <view class="batch-btn {{batchMode ? 'active' : ''}}" bindtap="onToggleBatchMode">
+        <text>{{batchMode ? '取消管理' : '批量管理'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="bean-tools" wx:if="{{totalBeanCount > 0}}">
+    <view class="bean-search">
+      <text class="search-icon">搜</text>
+      <input class="search-input" value="{{searchKeyword}}" placeholder="搜索豆名、产地、处理法、风味" bindinput="onSearchInput" />
+    </view>
+    <view class="view-switch">
+      <view class="view-switch-item {{beanDisplayMode === 'grid' ? 'active' : ''}}" data-mode="grid" bindtap="onToggleBeanDisplayMode">
+        <text>卡墙</text>
+      </view>
+      <view class="view-switch-item {{beanDisplayMode === 'list' ? 'active' : ''}}" data-mode="list" bindtap="onToggleBeanDisplayMode">
+        <text>列表</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="sort-panel" wx:if="{{totalBeanCount > 0}}">
+    <view class="sort-group">
+      <text class="sort-label">排序</text>
+      <view class="sort-options">
+        <view class="sort-chip {{sortField === 'stock' ? 'active' : ''}}" data-field="stock" bindtap="onSelectSortField">
+          <text>按库存</text>
+        </view>
+        <view class="sort-chip {{sortField === 'roastAge' ? 'active' : ''}}" data-field="roastAge" bindtap="onSelectSortField">
+          <text>按烘焙天数</text>
+        </view>
+      </view>
+    </view>
+    <view class="sort-group sort-order-group">
+      <text class="sort-label">顺序</text>
+      <view class="sort-options">
+        <view class="sort-chip {{sortOrder === 'desc' ? 'active' : ''}}" data-order="desc" bindtap="onSelectSortOrder">
+          <text>降序</text>
+        </view>
+        <view class="sort-chip {{sortOrder === 'asc' ? 'active' : ''}}" data-order="asc" bindtap="onSelectSortOrder">
+          <text>升序</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="batch-toolbar" wx:if="{{batchMode}}">
+    <view class="batch-action" bindtap="onToggleSelectAll">
+      <text>{{allVisibleBatchSelected ? '取消全选' : '全选'}}</text>
+    </view>
+    <text class="batch-count">已选 {{selectedBatchIds.length}} 款</text>
+    <view class="batch-delete {{selectedBatchIds.length ? '' : 'disabled'}}" bindtap="onDeleteSelected">
+      <text>删除</text>
+    </view>
+  </view>
+
+  <scroll-view class="bean-list bean-grid-scroll" scroll-y="true" wx:if="{{totalBeanCount > 0 && beanDisplayMode === 'grid'}}">
+    <view class="bean-grid" wx:if="{{displayBeans.length > 0}}">
+      <view
+        class="bean-tile {{item.batchSelected ? 'selected' : ''}}"
+        wx:for="{{displayBeans}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onTapBean"
+      >
+        <view class="bean-tile-cover {{item.coverImage ? 'has-image' : 'no-image'}} age-{{item.roastAgeClass}}">
+          <image wx:if="{{item.coverImage}}" class="bean-tile-image" src="{{item.coverImage}}" mode="aspectFill" />
+          <view wx:if="{{item.coverImage}}" class="bean-tile-image-mask"></view>
+          <view class="bean-tile-top">
+            <text class="bean-tile-stock">{{item.stockText || '未填'}}</text>
+            <view class="bean-tile-check" wx:if="{{batchMode && item.batchSelected}}">
+              <text>✓</text>
+            </view>
+          </view>
+          <view class="bean-tile-name-wrap">
+            <text class="bean-tile-name">{{item.name || '未命名'}}</text>
+            <text class="bean-tile-origin">{{item.origin || '未知产地'}}</text>
+          </view>
+        </view>
+        <view class="bean-tile-meta">
+          <view class="roast-age-badge {{item.roastAgeClass}}">
+            <text>{{item.roastAgeLabel || '未记录烘焙日期'}}</text>
+          </view>
+          <view class="bean-tile-tags">
+            <text class="bean-tile-tag">{{item.processing || '未知处理法'}}</text>
+            <text class="bean-tile-tag roast">{{item.roastLevelLabel || '未知烘焙度'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="inline-empty" wx:if="{{displayBeans.length === 0 && beans.length > 0}}">
+      <text>没有匹配到豆子</text>
+    </view>
+    <view class="finished-beans-card" wx:if="{{displayArchivedBeans.length > 0}}">
+      <view class="finished-beans-header" bindtap="onToggleArchivedBeans">
+        <view class="finished-beans-copy">
+          <text class="finished-beans-title">喝完的豆豆们</text>
+          <text class="finished-beans-desc">{{displayArchivedBeans.length}} 款库存为 0 的豆子</text>
+        </view>
+        <text class="finished-beans-arrow">{{archivedBeansExpanded ? '收起' : '展开'}}</text>
+      </view>
+      <view class="finished-grid" wx:if="{{archivedBeansExpanded}}">
+        <view
+          class="bean-tile finished {{item.batchSelected ? 'selected' : ''}}"
+          wx:for="{{displayArchivedBeans}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onTapBean"
+        >
+          <view class="bean-tile-cover {{item.coverImage ? 'has-image' : 'no-image'}} age-{{item.roastAgeClass}}">
+            <image wx:if="{{item.coverImage}}" class="bean-tile-image" src="{{item.coverImage}}" mode="aspectFill" />
+            <view wx:if="{{item.coverImage}}" class="bean-tile-image-mask"></view>
+            <view class="bean-tile-top">
+              <text class="bean-tile-stock">0克</text>
+              <view class="bean-tile-check" wx:if="{{batchMode && item.batchSelected}}">
+                <text>✓</text>
+              </view>
+            </view>
+            <view class="bean-tile-name-wrap">
+              <text class="bean-tile-name">{{item.name || '未命名'}}</text>
+              <text class="bean-tile-origin">{{item.origin || '未知产地'}}</text>
+            </view>
+          </view>
+          <view class="bean-tile-meta">
+            <view class="roast-age-badge {{item.roastAgeClass}}">
+              <text>{{item.roastAgeLabel || '未记录烘焙日期'}}</text>
+            </view>
+            <view class="bean-tile-tags">
+              <text class="bean-tile-tag">{{item.processing || '未知处理法'}}</text>
+              <text class="bean-tile-tag roast">{{item.roastLevelLabel || '未知烘焙度'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="list-footer">
+      <text class="footer-text">共 {{totalBeanCount}} 款豆子</text>
+    </view>
+  </scroll-view>
+
+  <scroll-view class="bean-list" scroll-y="true" wx:if="{{totalBeanCount > 0 && beanDisplayMode === 'list'}}">
+    <bean-card
+      wx:for="{{displayBeans}}"
+      wx:key="id"
+      bean="{{item}}"
+      selected="{{item.batchSelected}}"
+      showArrow="{{!batchMode}}"
+      showCheck="{{batchMode}}"
+      bind:select="onTapBean"
+    />
+    <view class="inline-empty" wx:if="{{displayBeans.length === 0 && beans.length > 0}}">
+      <text>没有匹配到豆子</text>
+    </view>
+    <view class="finished-beans-card" wx:if="{{displayArchivedBeans.length > 0}}">
+      <view class="finished-beans-header" bindtap="onToggleArchivedBeans">
+        <view class="finished-beans-copy">
+          <text class="finished-beans-title">喝完的豆豆们</text>
+          <text class="finished-beans-desc">{{displayArchivedBeans.length}} 款库存为 0 的豆子</text>
+        </view>
+        <text class="finished-beans-arrow">{{archivedBeansExpanded ? '收起' : '展开'}}</text>
+      </view>
+      <view class="finished-beans-list" wx:if="{{archivedBeansExpanded}}">
+        <bean-card
+          wx:for="{{displayArchivedBeans}}"
+          wx:key="id"
+          bean="{{item}}"
+          selected="{{item.batchSelected}}"
+          showArrow="{{!batchMode}}"
+          showCheck="{{batchMode}}"
+          bind:select="onTapBean"
+        />
+      </view>
+    </view>
+    <view class="list-footer">
+      <text class="footer-text">共 {{totalBeanCount}} 款豆子</text>
+    </view>
+  </scroll-view>
+
+  <view class="empty-state" wx:if="{{totalBeanCount === 0}}">
+    <text class="empty-icon">□</text>
+    <text class="empty-title">豆仓空空如也</text>
+    <text class="empty-desc">添加你喜欢的咖啡豆，开始冲煮之旅</text>
+    <view class="empty-actions">
+      <button class="btn-primary-empty quick" bindtap="onQuickAddBean">秒拍入库</button>
+      <button class="btn-primary-empty manual" bindtap="onAddBean">手动添加</button>
+    </view>
+  </view>
+</view>
