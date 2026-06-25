@@ -1,5 +1,14 @@
 const ACTIVE_BREW_TIMER_KEY = 'coffeeActiveBrewTimerRecipe';
 
+// 需求1：进入计时页后屏幕常亮的持续时长（5 分钟）
+const KEEP_SCREEN_ON_MS = 5 * 60 * 1000;
+
+// 需求2：节点倒计时提示音参数（用 WebAudioContext 实时合成，无需音频文件）
+// CUE_PREP = 倒数第 3、2 秒的“预备”音（较低、较短）
+// CUE_NODE = 倒数第 1 秒的“节点”音（较高、较长，与预备音明显区分）
+const CUE_PREP = { freq: 660, duration: 0.09, gain: 0.5 };
+const CUE_NODE = { freq: 988, duration: 0.22, gain: 0.6 };
+
 Page({
   data: {
     recipe: null,
@@ -28,6 +37,9 @@ Page({
       return;
     }
 
+    // 需求1：方案有效、进入计时页即开启屏幕常亮，并在 5 分钟后自动关闭
+    this.enableKeepScreenOn();
+
     const stages = this.buildTimerStages(recipe.stages, recipe);
     this.setData({
       recipe,
@@ -41,6 +53,10 @@ Page({
 
   onUnload() {
     this.stopTimer();
+    // 需求1：离开页面时关闭屏幕常亮并清除 5 分钟定时器
+    this.disableKeepScreenOn();
+    // 需求2：释放音频上下文
+    this.destroyAudioContext();
   },
 
   buildRecipeMeta(recipe = {}) {
@@ -122,10 +138,14 @@ Page({
 
   startTimer() {
     this.stopTimer();
+    // 需求2：在用户点击“开始”的手势栈内初始化音频上下文，规避自动播放限制
+    this.ensureAudioContext();
     this.setData({ running: true });
     this.timer = setInterval(() => {
       const nextElapsed = this.data.elapsedSeconds + 1;
       this.updateStageByElapsed(nextElapsed);
+      // 需求2：仅在计时自然推进时检测节点倒计时提示音（手动跳段不触发）
+      this.maybePlayCountdownCue(nextElapsed);
       const totalSeconds = this.getTotalSeconds();
       if (nextElapsed >= totalSeconds) {
         this.stopTimer();
@@ -138,6 +158,93 @@ Page({
     if (this.timer) {
       clearInterval(this.timer);
       this.timer = null;
+    }
+  },
+
+  // ===== 需求1：屏幕常亮（5 分钟自动关闭）=====
+  enableKeepScreenOn() {
+    wx.setKeepScreenOn({ keepScreenOn: true });
+    this.clearKeepScreenOnTimer();
+    this.keepScreenOnTimer = setTimeout(() => {
+      this.keepScreenOnTimer = null;
+      wx.setKeepScreenOn({ keepScreenOn: false });
+    }, KEEP_SCREEN_ON_MS);
+  },
+
+  disableKeepScreenOn() {
+    this.clearKeepScreenOnTimer();
+    wx.setKeepScreenOn({ keepScreenOn: false });
+  },
+
+  clearKeepScreenOnTimer() {
+    if (this.keepScreenOnTimer) {
+      clearTimeout(this.keepScreenOnTimer);
+      this.keepScreenOnTimer = null;
+    }
+  },
+
+  // ===== 需求2：节点倒计时提示音 =====
+  // 在每个阶段结束（注水节点）前：倒数第 3、2 秒播“预备”音，倒数第 1 秒播“节点”音
+  maybePlayCountdownCue(elapsedSeconds) {
+    const stages = this.data.stages || [];
+    if (!stages.length) return;
+    // 找到即将到达的那个节点所属阶段（第一个结束时间晚于当前用时的阶段）
+    const stage = stages.find(item => elapsedSeconds < item.endSeconds);
+    if (!stage) return;
+    const remaining = stage.endSeconds - elapsedSeconds;
+    if (remaining === 3 || remaining === 2) {
+      this.playCue('prep');
+    } else if (remaining === 1) {
+      this.playCue('node');
+      // 额外增强（需求未要求，不需要可删此行）：节点处配合一次震动，照顾湿手看不清屏幕的场景
+      wx.vibrateShort({ type: 'medium' });
+    }
+  },
+
+  ensureAudioContext() {
+    if (this.audioContext || this.audioUnavailable) return this.audioContext;
+    if (typeof wx.createWebAudioContext !== 'function') {
+      // 基础库过低不支持 WebAudioContext 时静默降级，不影响计时主流程
+      this.audioUnavailable = true;
+      return null;
+    }
+    try {
+      this.audioContext = wx.createWebAudioContext();
+    } catch (e) {
+      this.audioUnavailable = true;
+    }
+    return this.audioContext;
+  },
+
+  playCue(kind) {
+    const ctx = this.ensureAudioContext();
+    if (!ctx) return;
+    const cue = kind === 'node' ? CUE_NODE : CUE_PREP;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = cue.freq;
+      // 用指数包络起停，避免方波爆音（click）
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(cue.gain, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + cue.duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + cue.duration + 0.02);
+    } catch (e) {}
+  },
+
+  destroyAudioContext() {
+    if (this.audioContext) {
+      try {
+        if (typeof this.audioContext.close === 'function') {
+          this.audioContext.close();
+        }
+      } catch (e) {}
+      this.audioContext = null;
     }
   },
 
