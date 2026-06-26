@@ -69,11 +69,19 @@ Page({
 
   buildTimerStages(rawStages = [], recipe = {}) {
     let elapsed = 0;
+    let prevWater = 0;
     return rawStages.map((stage, index) => {
       const duration = this.parseDurationSeconds(stage.duration || stage.time || stage.timeNode || stage.totalTime) || 30;
       const startSeconds = elapsed;
       const endSeconds = elapsed + duration;
       elapsed = endSeconds;
+      // 注水增量：本段目标水量 - 上一段目标水量（解析不出时不显示）
+      const targetWater = this.parseWaterValue(stage.water);
+      let incrementLabel = '';
+      if (targetWater !== null && targetWater >= prevWater) {
+        incrementLabel = `本段 +${Math.round(targetWater - prevWater)}g`;
+      }
+      if (targetWater !== null) prevWater = targetWater;
       return {
         ...stage,
         stageIndex: index + 1,
@@ -82,6 +90,7 @@ Page({
         endSeconds,
         endLabel: this.formatSeconds(endSeconds),
         waterLabel: this.formatWater(stage.water),
+        incrementLabel,
         timeLabel: index === rawStages.length - 1 ? '预计完成时间' : '下一段注水',
         prompt: this.getStagePrompt(stage, recipe)
       };
@@ -118,6 +127,14 @@ Page({
     if (!text) return '-';
     if (/g|ml|mL|克|毫升/.test(text)) return text;
     return `${text}g`;
+  },
+
+  // 从目标水量里解析出数值（支持 "160"、"160g"、"160-180" 取首个数字），用于计算注水增量
+  parseWaterValue(value) {
+    if (value === null || value === undefined || value === '') return null;
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    const match = String(value).match(/\d+(\.\d+)?/);
+    return match ? Number(match[0]) : null;
   },
 
   formatSeconds(seconds) {

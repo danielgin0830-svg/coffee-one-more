@@ -173,6 +173,15 @@
   word-break: break-all;
 }
 
+.node-subvalue {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  font-weight: 900;
+  color: #E8752A;
+  line-height: 1.2;
+}
+
 .prompt-card {
   padding: 26rpx;
   background-color: #FFF4DE;

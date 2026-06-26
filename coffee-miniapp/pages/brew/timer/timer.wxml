@@ -14,10 +14,14 @@
 
     <text class="stage-name">{{currentStage.name}}</text>
 
-    <view class="time-panel single">
+    <view class="time-panel">
       <view class="time-block active">
         <text class="time-label">总计时</text>
         <text class="time-value">{{elapsedLabel}}</text>
+      </view>
+      <view class="time-block">
+        <text class="time-label">本段剩余</text>
+        <text class="time-value">{{remainingLabel}}</text>
       </view>
     </view>
 
@@ -25,6 +29,7 @@
       <view class="node-item">
         <text class="node-label">目标水量</text>
         <text class="node-value">{{currentStage.waterLabel}}</text>
+        <text wx:if="{{currentStage.incrementLabel}}" class="node-subvalue">{{currentStage.incrementLabel}}</text>
       </view>
       <view class="node-item">
         <text class="node-label">{{currentStage.timeLabel}}</text>
