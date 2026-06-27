@@ -1,10 +1,19 @@
 const ACTIVE_BREW_TIMER_KEY = 'coffeeActiveBrewTimerRecipe';
 
+// 进入计时页后屏幕常亮的持续时长（5 分钟）
+const KEEP_SCREEN_ON_MS = 5 * 60 * 1000;
+
+// 节点倒计时提示音参数（用 WebAudioContext 实时合成，无需音频文件）
+const CUE_PREP = { freq: 660, duration: 0.09, gain: 0.9 };
+const CUE_NODE = { freq: 988, duration: 0.22, gain: 1 };
+
 Page({
   data: {
     recipe: null,
     recipeTitle: '冲煮计时',
-    recipeMeta: '',
+    recipeDoseMeta: '',
+    recipeGrinderMeta: '',
+    recipeGrindMeta: '',
     stages: [],
     currentStage: null,
     nextStage: null,
@@ -28,11 +37,13 @@ Page({
       return;
     }
 
+    this.enableKeepScreenOn();
+
     const stages = this.buildTimerStages(recipe.stages, recipe);
     this.setData({
       recipe,
       recipeTitle: recipe.beanName || recipe.methodName || '冲煮计时',
-      recipeMeta: this.buildRecipeMeta(recipe),
+      ...this.buildRecipeMeta(recipe),
       stages
     }, () => {
       this.updateStageByElapsed(0);
@@ -41,23 +52,54 @@ Page({
 
   onUnload() {
     this.stopTimer();
+    this.disableKeepScreenOn();
+    this.destroyAudioContext();
   },
 
   buildRecipeMeta(recipe = {}) {
-    const parts = [];
-    if (recipe.doseGrams) parts.push(`${recipe.doseGrams}g 粉`);
-    if (recipe.totalWater) parts.push(`${recipe.totalWater}g 水`);
-    if (recipe.grindSetting) parts.push(recipe.grindSetting);
-    return parts.join(' · ');
+    const doseParts = [];
+    if (recipe.doseGrams) doseParts.push(`粉量：${recipe.doseGrams}g`);
+    if (recipe.totalWater) doseParts.push(`水量：${recipe.totalWater}g`);
+
+    const grinderName = this.getGrinderName(recipe);
+    const grindSetting = this.getGrindSettingText(recipe.grindSetting, grinderName);
+
+    return {
+      recipeDoseMeta: doseParts.join(' · '),
+      recipeGrinderMeta: grinderName,
+      recipeGrindMeta: grindSetting ? `研磨度：${grindSetting}` : ''
+    };
+  },
+
+  getGrinderName(recipe = {}) {
+    const reference = String(recipe.grinderReference || '');
+    const matched = reference.match(/^([^：:]+)[：:]/);
+    return matched ? matched[1].trim() : '';
+  },
+
+  getGrindSettingText(grindSetting, grinderName = '') {
+    const text = String(grindSetting || '').trim();
+    if (!text) return '';
+    if (grinderName && text.startsWith(grinderName)) {
+      return text.slice(grinderName.length).trim();
+    }
+    return text;
   },
 
   buildTimerStages(rawStages = [], recipe = {}) {
     let elapsed = 0;
+    let prevWater = 0;
     return rawStages.map((stage, index) => {
       const duration = this.parseDurationSeconds(stage.duration || stage.time || stage.timeNode || stage.totalTime) || 30;
       const startSeconds = elapsed;
       const endSeconds = elapsed + duration;
       elapsed = endSeconds;
+      const targetWater = this.parseWaterValue(stage.water);
+      let incrementLabel = '';
+      if (targetWater !== null && targetWater >= prevWater) {
+        incrementLabel = `本段 +${Math.round(targetWater - prevWater)}g`;
+      }
+      if (targetWater !== null) prevWater = targetWater;
       return {
         ...stage,
         stageIndex: index + 1,
@@ -66,6 +108,7 @@ Page({
         endSeconds,
         endLabel: this.formatSeconds(endSeconds),
         waterLabel: this.formatWater(stage.water),
+        incrementLabel,
         timeLabel: index === rawStages.length - 1 ? '预计完成时间' : '下一段注水',
         prompt: this.getStagePrompt(stage, recipe)
       };
@@ -104,6 +147,13 @@ Page({
     return `${text}g`;
   },
 
+  parseWaterValue(value) {
+    if (value === null || value === undefined || value === '') return null;
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    const match = String(value).match(/\d+(\.\d+)?/);
+    return match ? Number(match[0]) : null;
+  },
+
   formatSeconds(seconds) {
     const safeSeconds = Math.max(0, Math.round(Number(seconds) || 0));
     const minutes = String(Math.floor(safeSeconds / 60)).padStart(2, '0');
@@ -122,10 +172,12 @@ Page({
 
   startTimer() {
     this.stopTimer();
+    this.ensureAudioContext();
     this.setData({ running: true });
     this.timer = setInterval(() => {
       const nextElapsed = this.data.elapsedSeconds + 1;
       this.updateStageByElapsed(nextElapsed);
+      this.maybePlayCountdownCue(nextElapsed);
       const totalSeconds = this.getTotalSeconds();
       if (nextElapsed >= totalSeconds) {
         this.stopTimer();
@@ -138,6 +190,86 @@ Page({
     if (this.timer) {
       clearInterval(this.timer);
       this.timer = null;
+    }
+  },
+
+  enableKeepScreenOn() {
+    wx.setKeepScreenOn({ keepScreenOn: true });
+    this.clearKeepScreenOnTimer();
+    this.keepScreenOnTimer = setTimeout(() => {
+      this.keepScreenOnTimer = null;
+      wx.setKeepScreenOn({ keepScreenOn: false });
+    }, KEEP_SCREEN_ON_MS);
+  },
+
+  disableKeepScreenOn() {
+    this.clearKeepScreenOnTimer();
+    wx.setKeepScreenOn({ keepScreenOn: false });
+  },
+
+  clearKeepScreenOnTimer() {
+    if (this.keepScreenOnTimer) {
+      clearTimeout(this.keepScreenOnTimer);
+      this.keepScreenOnTimer = null;
+    }
+  },
+
+  maybePlayCountdownCue(elapsedSeconds) {
+    const stages = this.data.stages || [];
+    if (!stages.length) return;
+    const stage = stages.find(item => elapsedSeconds < item.endSeconds);
+    if (!stage) return;
+    const remaining = stage.endSeconds - elapsedSeconds;
+    if (remaining === 4 || remaining === 3 || remaining === 2) {
+      this.playCue('prep');
+    } else if (remaining === 1) {
+      this.playCue('node');
+      wx.vibrateShort({ type: 'medium' });
+    }
+  },
+
+  ensureAudioContext() {
+    if (this.audioContext || this.audioUnavailable) return this.audioContext;
+    if (typeof wx.createWebAudioContext !== 'function') {
+      this.audioUnavailable = true;
+      return null;
+    }
+    try {
+      this.audioContext = wx.createWebAudioContext();
+    } catch (e) {
+      this.audioUnavailable = true;
+    }
+    return this.audioContext;
+  },
+
+  playCue(kind) {
+    const ctx = this.ensureAudioContext();
+    if (!ctx) return;
+    const cue = kind === 'node' ? CUE_NODE : CUE_PREP;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = cue.freq;
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(cue.gain, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + cue.duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + cue.duration + 0.02);
+    } catch (e) {}
+  },
+
+  destroyAudioContext() {
+    if (this.audioContext) {
+      try {
+        if (typeof this.audioContext.close === 'function') {
+          this.audioContext.close();
+        }
+      } catch (e) {}
+      this.audioContext = null;
     }
   },
 

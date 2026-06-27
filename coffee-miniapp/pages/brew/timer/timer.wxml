@@ -1,13 +1,15 @@
 <view class="timer-page">
-  <view class="timer-top">
-    <button class="nav-btn" bindtap="onExit">退出</button>
-    <view class="timer-title-wrap">
-      <text class="timer-title">{{recipeTitle}}</text>
-      <text class="timer-subtitle">{{recipeMeta}}</text>
-    </view>
-  </view>
-
   <view class="timer-main" wx:if="{{currentStage}}">
+    <view class="timer-top">
+      <button class="nav-btn" bindtap="onExit">退出</button>
+      <view class="timer-title-wrap">
+        <text class="timer-title">{{recipeTitle}}</text>
+        <text class="timer-subtitle" wx:if="{{recipeDoseMeta}}">{{recipeDoseMeta}}</text>
+        <text class="timer-subtitle" wx:if="{{recipeGrinderMeta}}">{{recipeGrinderMeta}}</text>
+        <text class="timer-subtitle" wx:if="{{recipeGrindMeta}}">{{recipeGrindMeta}}</text>
+      </view>
+    </view>
+
     <view class="stage-count">
       <text>阶段 {{currentStage.stageIndex}} / {{stages.length}}</text>
     </view>
@@ -25,6 +27,7 @@
       <view class="node-item">
         <text class="node-label">目标水量</text>
         <text class="node-value">{{currentStage.waterLabel}}</text>
+        <text wx:if="{{currentStage.incrementLabel}}" class="node-subvalue">{{currentStage.incrementLabel}}</text>
       </view>
       <view class="node-item">
         <text class="node-label">{{currentStage.timeLabel}}</text>

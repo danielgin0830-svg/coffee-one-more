@@ -81,9 +81,19 @@
 .stage-name {
   font-size: 54rpx;
   font-weight: 900;
-  color: #2A211B;
+  color: #FFFFFF;
   line-height: 1.15;
+  text-align: center;
   word-break: break-all;
+  text-shadow:
+    2rpx 0 0 #2A211B,
+    -2rpx 0 0 #2A211B,
+    0 2rpx 0 #2A211B,
+    0 -2rpx 0 #2A211B,
+    2rpx 2rpx 0 #2A211B,
+    -2rpx 2rpx 0 #2A211B,
+    2rpx -2rpx 0 #2A211B,
+    -2rpx -2rpx 0 #2A211B;
 }
 
 .time-panel {
@@ -171,6 +181,15 @@
   color: #2A211B;
   line-height: 1.2;
   word-break: break-all;
+}
+
+.node-subvalue {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  font-weight: 900;
+  color: #E8752A;
+  line-height: 1.2;
 }
 
 .prompt-card {
@@ -300,6 +319,8 @@
   display: flex;
   flex-direction: column;
   gap: 16rpx;
+  margin-top: -28rpx;
+  margin-bottom: 104rpx;
 }
 
 .timer-main-actions {
