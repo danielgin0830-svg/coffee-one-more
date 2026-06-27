@@ -29,7 +29,7 @@ function enrichBean(bean = {}, selectedBatchIds = []) {
     roastAgeDays,
     roastAgeSort: roastAgeDays >= 0 ? roastAgeDays : -1,
     roastAgeLabel: roastAgeDays >= 0 ? `烘焙后 ${roastAgeDays} 天` : '未记录烘焙日期',
-    roastAgeClass: getRoastAgeClass(roastAgeDays),
+    roastAgeClass: getRoastAgeClass(roastAgeDays, bean.roastLevel),
     batchSelected: selectedBatchIds.includes(bean.id)
   };
 }
@@ -90,10 +90,26 @@ function parseLocalDate(value) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-function getRoastAgeClass(days) {
+// 不同烘焙度的养豆（排气）节奏不同：深烘排气快、赏味窗口前移；浅烘排气慢、需更久养豆。
+// 阈值为常见参考值（单位：天），可按自己的标准调整。
+const ROAST_AGE_THRESHOLDS = {
+  light: { fresh: 10, old: 35 },   // 浅烘 / 极浅烘：排气慢，养豆久
+  medium: { fresh: 7, old: 28 },   // 中烘
+  dark: { fresh: 4, old: 21 }      // 深烘 / 极深烘：排气快，赏味期前移
+};
+
+function getRoastAgeThreshold(roastLevel) {
+  if (roastLevel === 'dark' || roastLevel === 'ultra_dark') return ROAST_AGE_THRESHOLDS.dark;
+  if (roastLevel === 'medium') return ROAST_AGE_THRESHOLDS.medium;
+  // 默认按浅烘处理（含 light / ultra_light / 未填写烘焙度）
+  return ROAST_AGE_THRESHOLDS.light;
+}
+
+function getRoastAgeClass(days, roastLevel) {
   if (days < 0) return 'unknown';
-  if (days >= 30) return 'old';
-  if (days <= 10) return 'fresh';
+  const threshold = getRoastAgeThreshold(roastLevel);
+  if (days >= threshold.old) return 'old';
+  if (days <= threshold.fresh) return 'fresh';
   return 'ready';
 }
 
