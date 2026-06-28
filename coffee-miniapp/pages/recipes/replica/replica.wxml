@@ -1,5 +1,5 @@
 <view class="replica-page">
-  <nav-bar title="个人方案复刻" showBack="{{true}}" />
+  <nav-bar title="{{pageTitle}}" showBack="{{true}}" />
 
   <scroll-view class="replica-scroll" scroll-y="true">
     <view class="manual-card">
@@ -115,6 +115,7 @@
         wx:if="{{previewRecipe}}"
         recipe="{{previewRecipe}}"
         showFeedback="{{false}}"
+        saveText="{{isEdit ? '保存修改' : '保存方案'}}"
         retryText="返回存档"
         bind:retry="onBackToArchive"
         bind:sharecard="onShareCard"
