@@ -12,6 +12,17 @@
       <input class="form-input" value="{{form.brand}}" bindinput="onFieldChange" data-field="brand" placeholder="{{brandPlaceholder}}" />
     </view>
 
+    <view class="form-group" wx:if="{{type === 'cup'}}">
+      <text class="form-label">滤杯类型 *</text>
+      <picker mode="selector" range="{{cupCategoryOptions}}" range-key="label" value="{{cupCategoryIndex}}" bindchange="onCupCategoryChange">
+        <view class="form-picker">
+          <text class="form-picker-value">{{cupCategoryOptions[cupCategoryIndex].label}}</text>
+          <text class="form-picker-arrow">›</text>
+        </view>
+      </picker>
+      <text class="form-hint">选对类型，冲煮方案才能正确联动你的滤杯（按旁通率和形状区分）。</text>
+    </view>
+
     <view class="form-group row">
       <text class="form-label">设为默认设备</text>
       <switch checked="{{form.isDefault}}" bindchange="onSwitchDefault" color="#E8752A" />

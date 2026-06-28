@@ -348,6 +348,10 @@ Page({
     }
     const equipment = this.getCustomEquipment(equipmentId);
     if (!equipment) return '';
+    // 需求5：优先用用户添加滤杯时主动选择的分类，不再靠名称猜测（猜不中会导致方案不联动）
+    if (equipment.category) {
+      return equipment.brewCupId || '';
+    }
     const text = this.normalizeEquipmentText(equipment);
     if (text.includes('switch')) return 'regular_cone';
     if (text.includes('clever') || text.includes('aeropress') || text.includes('法压') || text.includes('phin') || text.includes('immersion') || text.includes('浸泡') || text.includes('聪明杯') || text.includes('gina')) return '';

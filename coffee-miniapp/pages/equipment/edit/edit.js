@@ -8,12 +8,25 @@ const {
   buildTimelinePayload
 } = require('../../../utils/share-card.js');
 
+// 需求⑤：用户添加滤杯时主动选择分类，冲煮方案据此联动，不再靠名称猜测
+// brewCupId 为空表示该类型暂不参与当前手冲方案（浸泡式 / 混合型）
+const CUP_CATEGORY_OPTIONS = [
+  { id: 'regular_cone', label: '常规锥形（V60 类）', brewCupId: 'regular_cone' },
+  { id: 'low_bypass_cone', label: '低旁通锥形（Hario 无限类）', brewCupId: 'low_bypass_cone' },
+  { id: 'regular_flat', label: '常规平底（Kalita 蛋糕杯 / 泰摩 B75 类）', brewCupId: 'regular_flat' },
+  { id: 'low_bypass_flat', label: '低旁通平底（Orea / SD1R / SOLO 类）', brewCupId: 'low_bypass_flat' },
+  { id: 'immersion', label: '浸泡式（聪明杯 / 法压，暂不参与手冲方案）', brewCupId: '' },
+  { id: 'mixed', label: '其他 / 混合型（暂不参与手冲方案）', brewCupId: '' }
+];
+
 Page({
   data: {
     type: 'cup',
     title: '添加滤杯',
     modelPlaceholder: '例如：Orea Baby-O',
     brandPlaceholder: '例如：Orea',
+    cupCategoryOptions: CUP_CATEGORY_OPTIONS,
+    cupCategoryIndex: 0,
     form: {
       model: '',
       brand: '',
@@ -68,6 +81,10 @@ Page({
     });
   },
 
+  onCupCategoryChange(e) {
+    this.setData({ cupCategoryIndex: Number(e.detail.value) || 0 });
+  },
+
   onSave() {
     if (!requireLogin('登录后可保存你的设备信息。')) return;
     const { form, type } = this.data;
@@ -87,8 +104,16 @@ Page({
         });
       }
 
+      const extra = {};
+      if (type === 'cup') {
+        const category = CUP_CATEGORY_OPTIONS[this.data.cupCategoryIndex] || CUP_CATEGORY_OPTIONS[0];
+        extra.category = category.id;
+        extra.brewCupId = category.brewCupId;
+      }
+
       equipments.unshift({
         ...form,
+        ...extra,
         id,
         type,
         createdAt: new Date().toISOString()
