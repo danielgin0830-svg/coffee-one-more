@@ -49,7 +49,8 @@ Component({
     displayStages: [],
     displayMethodName: '',
     displayMethodSource: '',
-    displayRatioText: ''
+    displayRatioText: '',
+    grinderTipExpanded: false
   },
 
   lifetimes: {
@@ -199,6 +200,9 @@ Component({
     },
     onFeedback(e) {
       this.triggerEvent('feedback', { type: e.currentTarget.dataset.type });
+    },
+    onToggleGrinderTip() {
+      this.setData({ grinderTipExpanded: !this.data.grinderTipExpanded });
     }
   }
 });

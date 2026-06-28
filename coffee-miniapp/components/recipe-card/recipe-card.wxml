@@ -42,6 +42,14 @@
     <text class="section-title">磨豆机参考</text>
     <text class="grinder-text">{{recipe.grinderReference}}</text>
     <text class="grinder-note">{{recipe.grinderNote}}</text>
+    <view class="grinder-beginner-toggle" bindtap="onToggleGrinderTip">
+      <text>{{grinderTipExpanded ? '收起新手说明 ▲' : '看不懂 C40 / 研磨度？点这里 ▼'}}</text>
+    </view>
+    <view class="grinder-beginner-body" wx:if="{{grinderTipExpanded}}">
+      <text class="grinder-beginner-text">· 研磨度决定萃取快慢：磨太粗 → 偏淡偏酸；磨太细 → 偏苦偏涩。</text>
+      <text class="grinder-beginner-text">· 上面的「C40 + N 格」是以 Comandante C40 手磨为统一基准的刻度。换别的磨豆机不用纠结具体数字——先在自己的磨上找到「中细、像细砂糖」的刻度当起点。</text>
+      <text class="grinder-beginner-text">· 之后照口感微调：偏淡偏酸就磨细一点，偏苦偏涩就磨粗一点，每次只调一点点。</text>
+    </view>
   </view>
 
   <view class="grinder-reference" wx:if="{{recipe.waterName}}">
