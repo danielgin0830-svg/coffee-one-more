@@ -107,7 +107,7 @@ const ROAST_LEVEL_PROFILES = {
     grindMove: -1,
     waterMove: 0,
     tempDelta: 1,
-    note: '极浅烘按保守增强萃取处理：水温略高、研磨略细，但不改变器具主路线'
+    note: '极浅烘按基准或略细处理：不先大幅升温，优先保证闷蒸充分，中段可稍加强'
   },
   light: {
     label: '浅烘',
@@ -670,6 +670,7 @@ Page({
 
     const flavorProfile = this.analyzeFlavor(selectedBean.flavorNotes);
     const category = this.classifyBean(selectedBean.processing, flavorProfile);
+    const processingProfile = this.getProcessingProfile(selectedBean.processing, selectedBean, flavorProfile);
     const cupProfile = this.getCupProfile(selectedCup);
     const paperProfile = this.getPaperProfile(selectedPaper);
     const cupText = this.formatSelectedEquipmentText('cup', this.data.selectedCupEquipmentId, cupProfile.label);
@@ -679,21 +680,21 @@ Page({
     const waterProfile = this.getSelectedWaterProfile();
     const waterAdjustment = this.getWaterTdsAdjustment(waterProfile.tds);
     const roastProfile = this.getRoastLevelProfile(selectedBean.roastLevel);
-    const ratio = this.getV2Ratio(category, brewProfile);
-    const totalWater = this.getV2TotalWater(doseGrams, ratio, brewProfile, flavorProfile, feedbackAdjustment, waterAdjustment, roastProfile);
+    const ratio = this.getV2Ratio(category, brewProfile, processingProfile);
+    const totalWater = this.getV2TotalWater(doseGrams, ratio, brewProfile, flavorProfile, feedbackAdjustment, waterAdjustment, roastProfile, processingProfile);
     const actualRatio = getActualRatioValue(doseGrams, totalWater) || ratio;
     const actualRatioText = formatActualRatioText(doseGrams, totalWater, `1:${ratio}`);
-    const grindDelta = this.getV2GrindDelta(category, selectedBean.processing, doseGrams, brewProfile, paperProfile, flavorProfile, feedbackAdjustment, waterAdjustment, roastProfile, selectedBean);
+    const grindDelta = this.getV2GrindDelta(category, selectedBean.processing, doseGrams, brewProfile, paperProfile, flavorProfile, feedbackAdjustment, waterAdjustment, roastProfile, selectedBean, processingProfile);
     const grinderProfile = this.getSelectedGrinderProfile();
     const grindSetting = this.formatSelectedGrinderSetting(grinderProfile, grindDelta);
     const grinderReference = this.formatGrinderReference(grinderProfile, grindDelta);
     const waterTemp = this.getV2WaterTemp(roastProfile);
 
     // 生成注水阶段
-    const stages = this.generateStages(category, brewProfile, doseGrams, totalWater, selectedBean);
+    const stages = this.generateStages(category, brewProfile, doseGrams, totalWater, selectedBean, processingProfile);
 
     // 风险提示
-    const risks = this.generateRisks(category, selectedBean.processing, doseGrams, brewProfile, paperProfile, grindDelta, flavorProfile, feedbackAdjustment, roastProfile, selectedBean);
+    const risks = this.generateRisks(category, selectedBean.processing, doseGrams, brewProfile, paperProfile, grindDelta, flavorProfile, feedbackAdjustment, roastProfile, selectedBean, processingProfile);
 
     const recipe = {
       beanId: selectedBean.id,
@@ -983,9 +984,8 @@ Page({
   },
 
   classifyBean(processing, flavorProfile = {}) {
-    const p = (processing || '').toLowerCase();
-    if (p === 'washed' || p === 'honey' || p === '水洗' || p === '蜜处理' || p === '密处理') return 'A';
-    if (p === 'natural' || p === 'other' || p === '日晒' || p === '其他' || p.includes('厌氧') || p.includes('重发酵') || p.includes('发酵') || p.includes('酒') || p.includes('实验')) return 'B';
+    if (this.isCleanProcessing(processing)) return 'A';
+    if (this.isNaturalProcessing(processing) || this.isSpecialFermentation(processing)) return 'B';
 
     if (flavorProfile.family === 'fermented' || flavorProfile.family === 'tailRisk') return 'B';
     if (flavorProfile.family === 'brightDisplay' || flavorProfile.family === 'sweetClean') return 'A';
@@ -997,6 +997,56 @@ Page({
       return 'A类：水洗 / 干净蜜处理为主，风味描述只作辅助修正';
     }
     return 'B类：日晒 / 特殊处理为主，风味描述只作辅助修正';
+  },
+
+  getProcessingProfile(processing = '', bean = {}, flavorProfile = {}) {
+    if (this.isSpecialFermentation(processing)) {
+      return {
+        key: 'special',
+        label: '厌氧 / 重发酵 / 酒桶',
+        baseGrindDelta: 4,
+        minGrindDelta: 3,
+        maxGrindDelta: 6,
+        stageCount: 2,
+        ratioLow: 15,
+        ratioHigh: 15,
+        tailCutGrams: 10,
+        note: '厌氧 / 重发酵 / 酒桶按少扰动框架处理：C40杯测 +3 到 +6格，1:15 左右，后段中心小圈，必要时截流 10g，防止尾段苦涩和杂味。'
+      };
+    }
+
+    if (this.isNaturalProcessing(processing)) {
+      return {
+        key: 'natural',
+        label: '日晒',
+        baseGrindDelta: 3,
+        minGrindDelta: 2,
+        maxGrindDelta: 4,
+        stageCount: 2,
+        ratioLow: 15,
+        ratioHigh: 15.5,
+        note: '日晒按减少浑浊和发酵感处理：C40杯测 +2 到 +4格，1:15-1:15.5，闷蒸 + 2段，中段少量绕圈，后段中心小圈。'
+      };
+    }
+
+    if (this.isCleanProcessing(processing)) {
+      return {
+        key: 'clean',
+        label: '水洗 / 干净蜜',
+        baseGrindDelta: 0,
+        minGrindDelta: -1,
+        maxGrindDelta: 2,
+        stageCount: 3,
+        ratioLow: 15.5,
+        ratioHigh: 16,
+        note: '水洗 / 干净蜜按清晰度和甜感处理：C40杯测 -1 到 +2格，1:15.5-1:16，闷蒸 + 3段，中段小圈绕注，后段中心小圈，防止酸紧、单薄。'
+      };
+    }
+
+    if (flavorProfile.family === 'fermented' || flavorProfile.family === 'tailRisk') {
+      return this.getProcessingProfile('other', bean, {});
+    }
+    return this.getProcessingProfile('natural', bean, {});
   },
 
   analyzeFlavor(flavorNotes = '') {
@@ -1139,14 +1189,18 @@ Page({
     return { grindMove: 1, waterMove: -10, note: 'TDS 很高，粗 1 格并减少总水量，优先保清晰度' };
   },
 
-  getV2Ratio(category, cupProfile) {
+  getV2Ratio(category, cupProfile, processingProfile = null) {
+    if (processingProfile) {
+      if (processingProfile.ratioLow === processingProfile.ratioHigh) return processingProfile.ratioLow;
+      return cupProfile.route === '展示' ? processingProfile.ratioHigh : processingProfile.ratioLow;
+    }
     if (category === 'A') {
       return cupProfile.route === '展示' ? 15.5 : 15;
     }
     return cupProfile.route === '展示' ? 15.5 : 15;
   },
 
-  getV2TotalWater(doseGrams, ratio, cupProfile, flavorProfile, feedbackAdjustment = null, waterAdjustment = null, roastProfile = null) {
+  getV2TotalWater(doseGrams, ratio, cupProfile, flavorProfile, feedbackAdjustment = null, waterAdjustment = null, roastProfile = null, processingProfile = null) {
     const sd1r = {
       8: 120,
       10: 150,
@@ -1162,7 +1216,9 @@ Page({
       20: 300
     };
     const table = cupProfile.filterShape === 'T90' ? sd1r : babyO;
-    const baseWater = table[doseGrams] || this.roundWaterToDisplay(doseGrams * ratio);
+    const baseWater = processingProfile
+      ? this.roundWaterToDisplay(doseGrams * ratio)
+      : (table[doseGrams] || this.roundWaterToDisplay(doseGrams * ratio));
     const adjusted = baseWater
       + (flavorProfile.waterDelta || 0)
       + (feedbackAdjustment ? feedbackAdjustment.waterMove || 0 : 0)
@@ -1171,10 +1227,14 @@ Page({
     return this.roundWaterToDisplay(Math.max(doseGrams * 14, adjusted));
   },
 
-  getV2GrindDelta(category, processing, doseGrams, cupProfile, paperProfile, flavorProfile, feedbackAdjustment = null, waterAdjustment = null, roastProfile = null, bean = {}) {
+  getV2GrindDelta(category, processing, doseGrams, cupProfile, paperProfile, flavorProfile, feedbackAdjustment = null, waterAdjustment = null, roastProfile = null, bean = {}, processingProfile = null) {
     const p = (processing || '').toLowerCase();
-    const isSpecial = p === 'other' || p.includes('厌氧') || p.includes('重发酵') || p.includes('发酵') || p.includes('酒') || p.includes('实验');
-    let delta = category === 'A' ? 0 : (isSpecial ? 4 : 3);
+    const isSpecial = processingProfile
+      ? processingProfile.key === 'special'
+      : (p === 'other' || p.includes('厌氧') || p.includes('重发酵') || p.includes('发酵') || p.includes('酒') || p.includes('实验'));
+    let delta = processingProfile
+      ? processingProfile.baseGrindDelta
+      : (category === 'A' ? 0 : (isSpecial ? 4 : 3));
 
     delta += cupProfile.grindDelta
       + paperProfile.grindDelta
@@ -1188,7 +1248,7 @@ Page({
 
     delta = this.applySmallDoseGrindRule(delta, doseGrams, cupProfile, processing, roastProfile, bean);
     delta += feedbackAdjustment ? feedbackAdjustment.grindMove || 0 : 0;
-    return this.clampV2GrindDelta(delta, category, isSpecial);
+    return this.clampV2GrindDelta(delta, category, isSpecial, processingProfile);
   },
 
   applySmallDoseGrindRule(delta, doseGrams, cupProfile, processing, roastProfile, bean = {}) {
@@ -1206,6 +1266,27 @@ Page({
       };
     }
 
+    if (this.isSpecialFermentation(processing)) {
+      return {
+        min: 3,
+        max: 6,
+        note: '10g 小粉量：常规滤杯用研磨补粉床厚度；厌氧 / 重发酵 / 酒桶按 C40杯测 +3 到 +6格。'
+      };
+    }
+    if (this.isNaturalProcessing(processing)) {
+      return {
+        min: 2,
+        max: 4,
+        note: '10g 小粉量：常规滤杯用研磨补粉床厚度；日晒按 C40杯测 +2 到 +4格。'
+      };
+    }
+    if (this.isCleanProcessing(processing)) {
+      return {
+        min: -1,
+        max: 2,
+        note: '10g 小粉量：常规滤杯用研磨补粉床厚度；水洗 / 干净蜜按 C40杯测 -1 到 +2格。'
+      };
+    }
     if (this.isMediumOrOldBean(roastProfile, bean)) {
       return {
         min: 3,
@@ -1213,24 +1294,10 @@ Page({
         note: '10g 小粉量：常规滤杯用研磨补粉床厚度；中烘或老豆按 C40杯测 +3格以上起手。'
       };
     }
-    if (this.isSpecialFermentation(processing)) {
-      return {
-        min: 2,
-        max: 4,
-        note: '10g 小粉量：常规滤杯用研磨补粉床厚度；厌氧 / 重发酵按 C40杯测 +2 到 +4格。'
-      };
-    }
-    if (this.isNaturalProcessing(processing)) {
-      return {
-        min: 1,
-        max: 2,
-        note: '10g 小粉量：常规滤杯用研磨补粉床厚度；日晒按 C40杯测 +1 到 +2格。'
-      };
-    }
     return {
       min: -1,
-      max: 0,
-      note: '10g 小粉量：常规滤杯用研磨补粉床厚度；水洗 / 蜜处理按 C40杯测 -1 到 ±0格。'
+      max: 2,
+      note: '10g 小粉量：常规滤杯用研磨补粉床厚度；未知处理法先按水洗 / 干净蜜的 C40杯测 -1 到 +2格。'
     };
   },
 
@@ -1242,17 +1309,40 @@ Page({
 
   isNaturalProcessing(processing = '') {
     const text = String(processing || '').toLowerCase();
-    return text === 'natural' || text.includes('日晒');
+    return text === 'natural'
+      || text.includes('natural')
+      || text.includes('日晒')
+      || text.includes('晒');
   },
 
   isSpecialFermentation(processing = '') {
     const text = String(processing || '').toLowerCase();
     return text === 'other'
+      || text.includes('anaerobic')
+      || text.includes('ferment')
+      || text.includes('barrel')
+      || text.includes('wine')
+      || text.includes('whisky')
+      || text.includes('rum')
       || text.includes('厌氧')
       || text.includes('重发酵')
       || text.includes('发酵')
+      || text.includes('酒桶')
       || text.includes('酒')
       || text.includes('实验');
+  },
+
+  isCleanProcessing(processing = '') {
+    const text = String(processing || '').toLowerCase();
+    return text === 'washed'
+      || text === 'honey'
+      || text.includes('washed')
+      || text.includes('honey')
+      || text.includes('水洗')
+      || text.includes('蜜处理')
+      || text.includes('密处理')
+      || text.includes('干净蜜')
+      || text.includes('clean honey');
   },
 
   isMediumOrOldBean(roastProfile = null, bean = {}) {
@@ -1266,7 +1356,26 @@ Page({
     return isMediumOrDarker || roastAgeDays >= 30;
   },
 
-  clampV2GrindDelta(delta, category, isSpecial) {
+  isUltraLightRoast(bean = {}) {
+    const roastLevel = String(bean.roastLevel || '').toLowerCase();
+    const roastLabel = String(bean.roastLevelLabel || '');
+    return roastLevel === 'ultra_light' || roastLabel.includes('极浅');
+  },
+
+  isDeepRoast(bean = {}) {
+    const roastLevel = String(bean.roastLevel || '').toLowerCase();
+    const roastLabel = String(bean.roastLevelLabel || '');
+    return roastLevel === 'dark'
+      || roastLevel === 'ultra_dark'
+      || roastLabel.includes('中深')
+      || roastLabel.includes('深烘')
+      || roastLabel.includes('极度深烘');
+  },
+
+  clampV2GrindDelta(delta, category, isSpecial, processingProfile = null) {
+    if (processingProfile) {
+      return Math.max(processingProfile.minGrindDelta, Math.min(processingProfile.maxGrindDelta, delta));
+    }
     if (category === 'A') {
       return Math.max(-4, Math.min(4, delta));
     }
@@ -1493,12 +1602,13 @@ Page({
     return '2:10-2:45';
   },
 
-  generateStages(category, cupProfile, doseGrams, totalWater, bean = {}) {
+  generateStages(category, cupProfile, doseGrams, totalWater, bean = {}, processingProfile = null) {
     const bloomWater = this.roundWaterToDisplay(doseGrams * 3);
     const bloomTime = this.getBloomTimeByRoastAge(bean);
     const durationProfile = this.getStageDurationProfile(category, doseGrams);
     const midNode = this.roundWaterToDisplay(totalWater * 0.64);
-    const pourNotes = this.getPourControlStageNotes(category, cupProfile, bean);
+    const pourNotes = this.getPourControlStageNotes(category, cupProfile, bean, processingProfile);
+    const stageCount = processingProfile ? processingProfile.stageCount : (category === 'A' ? 3 : 2);
 
     const stages = [{
       name: '闷蒸',
@@ -1508,7 +1618,7 @@ Page({
       showNote: true
     }];
 
-    if (category === 'A') {
+    if (stageCount === 3) {
       const secondNode = this.roundWaterToDisplay(totalWater * 0.82);
       stages.push({
         name: '第1段注水',
@@ -1551,7 +1661,7 @@ Page({
     return stages;
   },
 
-  getPourControlStageNotes(category, cupProfile = {}, bean = {}) {
+  getPourControlStageNotes(category, cupProfile = {}, bean = {}, processingProfile = null) {
     const roastAgeDays = Number.isFinite(Number(bean.roastAgeDays))
       ? Number(bean.roastAgeDays)
       : getRoastAgeDays(bean.roastDate);
@@ -1561,11 +1671,27 @@ Page({
         : (roastAgeDays >= 30 ? '老豆气泡少，液面回落后可更连续地接下一段。' : '液面开始自然下降即可接下一段。'))
       : '液面开始自然下降即可接下一段。';
 
-    if (category === 'A') {
+    const ultraLightHint = this.isUltraLightRoast(bean)
+      ? '极浅烘先保证闷蒸充分，中段可稍加强；不要先大幅升温。'
+      : '';
+    const deepHint = this.isDeepRoast(bean)
+      ? '中深 / 深烘少绕圈，中心小圈控尾段。'
+      : '';
+    const roastHint = [ultraLightHint, deepHint].filter(Boolean).join('');
+
+    if (processingProfile && processingProfile.key === 'clean') {
+      if (deepHint) {
+        return {
+          bloom: `闷蒸小水流充分打湿；${bloomAgeHint}${roastHint}`,
+          first: '中心小圈或小范围绕注，建立甜感即可，避免大圈强扰动。',
+          middle: '中段保持中心小圈，必要时短暂停 2-3s 等液面回落。',
+          tail: '后段中心小圈收尾，控制苦、木、涩，不冲粉床边缘。'
+        };
+      }
       return {
-        bloom: `闷蒸小水流绕小圈充分打湿；${bloomAgeHint}`,
+        bloom: `闷蒸小水流绕小圈充分打湿；${bloomAgeHint}${roastHint}`,
         first: '小圈绕注，提高花果香、甜感和风味强度；液面只允许缓慢上升。',
-        middle: '中段继续小圈或中心小圈；若液面快速抬高，减小水流或停 2-3s 等回落。',
+        middle: '中段小圈绕注；若液面快速抬高，减小水流或停 2-3s 等回落。',
         tail: '后段中心小圈收尾，控制涩木和尾段苦感，不冲粉床边缘。'
       };
     }
@@ -1573,8 +1699,34 @@ Page({
     const flatHint = cupProfile.filterShape === 'Flat 贴壁'
       ? '低旁通效率高，避免大圈强扰动。'
       : '以稳定适口性为优先。';
+    if (processingProfile && processingProfile.key === 'special') {
+      return {
+        bloom: `闷蒸小水流打湿即可，减少搅动；${bloomAgeHint}${roastHint}`,
+        first: `中心中小水流为主，只在粉床干区做极小范围补水；${flatHint}`,
+        middle: '',
+        tail: `后段中心小圈控尾段；若尾段出现苦涩、杂味或水位长期很高，下一杯考虑截流 ${processingProfile.tailCutGrams || 10}g。`
+      };
+    }
+    if (processingProfile && processingProfile.key === 'natural') {
+      return {
+        bloom: `闷蒸小水流打湿即可，不刻意加大扰动；${bloomAgeHint}${roastHint}`,
+        first: `中段少量小圈绕注，只补强甜感和香气；${flatHint}液面快速抬高就减小水流。`,
+        middle: '',
+        tail: '后段中心小圈收尾，降低浑浊、发酵感和尾段杂味。'
+      };
+    }
+
+    if (category === 'A') {
+      return {
+        bloom: `闷蒸小水流绕小圈充分打湿；${bloomAgeHint}${roastHint}`,
+        first: '小圈绕注，提高花果香、甜感和风味强度；液面只允许缓慢上升。',
+        middle: '中段继续小圈或中心小圈；若液面快速抬高，减小水流或停 2-3s 等回落。',
+        tail: '后段中心小圈收尾，控制涩木和尾段苦感，不冲粉床边缘。'
+      };
+    }
+
     return {
-      bloom: `闷蒸小水流打湿即可，不刻意拉长；${bloomAgeHint}`,
+      bloom: `闷蒸小水流打湿即可，不刻意拉长；${bloomAgeHint}${roastHint}`,
       first: `中心中小水流为主，必要时只做小范围绕圈；${flatHint}液面快速抬高就减小水流。`,
       middle: '',
       tail: '后段中心小圈控尾段；若水位长期很高或尾段变涩木，下一杯考虑截流 10g。'
@@ -1585,7 +1737,19 @@ Page({
     return '液面缓慢上升或基本稳定为合格；快速抬高代表注水太快，先减小水流或停 2-3s；粉床很快露出则下一段更早接上。';
   },
 
-  getPourPatternRuleText(category, cupProfile = {}) {
+  getPourPatternRuleText(category, cupProfile = {}, processingProfile = null, bean = {}) {
+    if (processingProfile && processingProfile.key === 'clean') {
+      if (this.isDeepRoast(bean)) {
+        return '水洗 / 干净蜜遇到中深 / 深烘时收敛扰动：保留 3 段结构，但少绕圈，以中心小圈控尾段。';
+      }
+      return '水洗 / 干净蜜：闷蒸 + 3 段，中段小圈绕注，后段中心小圈，防止酸紧、单薄。';
+    }
+    if (processingProfile && processingProfile.key === 'natural') {
+      return '日晒：闷蒸 + 2 段，中段少量绕圈，后段中心小圈，防止浑浊和发酵感过重。';
+    }
+    if (processingProfile && processingProfile.key === 'special') {
+      return `厌氧 / 重发酵 / 酒桶：少扰动，后段中心小圈；必要时下一杯截流 ${processingProfile.tailCutGrams || 10}g，防止尾段苦涩和杂味。`;
+    }
     if (category === 'A') {
       return '绕圈 / 小圈绕负责提高萃取强度、甜感和花果香；后段仍用中心小圈收尾。';
     }
@@ -1617,13 +1781,16 @@ Page({
     return [65, 40];
   },
 
-  generateRisks(category, processing, doseGrams, cupProfile, paperProfile, grindDelta, flavorProfile, feedbackAdjustment = null, roastProfile = null, bean = {}) {
+  generateRisks(category, processing, doseGrams, cupProfile, paperProfile, grindDelta, flavorProfile, feedbackAdjustment = null, roastProfile = null, bean = {}, processingProfile = null) {
     const risks = [
       `C40锚点：杯测21格，本方案为 ${this.formatC40Grind(grindDelta)}`,
       `风味辅助判断：${flavorProfile.note}`,
       `液面反馈：${this.getLiquidFeedbackRuleText()}`,
-      `注水手法：${this.getPourPatternRuleText(category, cupProfile)}`
+      `注水手法：${this.getPourPatternRuleText(category, cupProfile, processingProfile, bean)}`
     ];
+    if (processingProfile) {
+      risks.push(`处理法框架：${processingProfile.label}，${processingProfile.note}`);
+    }
     if (roastProfile) {
       risks.push(`烘焙度联动：${roastProfile.label}，${roastProfile.note}`);
     }
@@ -1696,16 +1863,17 @@ Page({
     const paperProfile = this.getPaperProfile(this.getPaperIdFromRecipe(recipe));
     const flavorProfile = this.analyzeFlavor(bean.flavorNotes || '');
     const category = this.classifyBean(bean.processing, flavorProfile);
+    const processingProfile = this.getProcessingProfile(bean.processing, bean, flavorProfile);
     const brewProfile = this.resolveBrewProfile(cupProfile, paperProfile, flavorProfile);
     const waterProfile = this.getWaterProfileFromRecipe(recipe);
     const waterAdjustment = this.getWaterTdsAdjustment(waterProfile.tds);
     const roastProfile = this.getRoastProfileFromRecipe(bean, recipe);
     const doseGrams = Number(recipe.doseGrams) || this.data.doseGrams;
-    const ratio = this.getV2Ratio(category, brewProfile);
-    const totalWater = this.getV2TotalWater(doseGrams, ratio, brewProfile, flavorProfile, nextAdjustment, waterAdjustment, roastProfile);
+    const ratio = this.getV2Ratio(category, brewProfile, processingProfile);
+    const totalWater = this.getV2TotalWater(doseGrams, ratio, brewProfile, flavorProfile, nextAdjustment, waterAdjustment, roastProfile, processingProfile);
     const actualRatio = getActualRatioValue(doseGrams, totalWater) || ratio;
     const actualRatioText = formatActualRatioText(doseGrams, totalWater, `1:${ratio}`);
-    const grindDelta = this.getV2GrindDelta(category, bean.processing, doseGrams, brewProfile, paperProfile, flavorProfile, nextAdjustment, waterAdjustment, roastProfile, bean);
+    const grindDelta = this.getV2GrindDelta(category, bean.processing, doseGrams, brewProfile, paperProfile, flavorProfile, nextAdjustment, waterAdjustment, roastProfile, bean, processingProfile);
     const grinderProfile = this.getSelectedGrinderProfile();
 
     return {
@@ -1724,8 +1892,8 @@ Page({
       totalWater,
       ratio: actualRatio,
       ratioText: actualRatioText,
-      stages: this.generateStages(category, brewProfile, doseGrams, totalWater, bean),
-      risks: this.generateRisks(category, bean.processing, doseGrams, brewProfile, paperProfile, grindDelta, flavorProfile, nextAdjustment, roastProfile, bean),
+      stages: this.generateStages(category, brewProfile, doseGrams, totalWater, bean, processingProfile),
+      risks: this.generateRisks(category, bean.processing, doseGrams, brewProfile, paperProfile, grindDelta, flavorProfile, nextAdjustment, roastProfile, bean, processingProfile),
       cupCategory: cupProfile.label,
       paperCategory: paperProfile.label,
       beanCategory: category,
