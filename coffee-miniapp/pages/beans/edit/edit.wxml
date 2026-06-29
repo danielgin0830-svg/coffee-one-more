@@ -12,6 +12,7 @@
       </view>
       <view class="ocr-candidate-block" wx:if="{{ocrCandidateGroups.length}}">
         <text class="ocr-candidate-title">待确认候选</text>
+        <text class="ocr-candidate-hint">名称、风味可点选多个叠加；日期 / 烘焙度 / 处理法为单选</text>
         <view class="ocr-candidate-group" wx:for="{{ocrCandidateGroups}}" wx:key="field">
           <text class="ocr-candidate-label">{{item.label}}</text>
           <view class="ocr-candidate-chips">
