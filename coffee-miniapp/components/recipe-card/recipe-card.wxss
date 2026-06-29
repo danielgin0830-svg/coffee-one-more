@@ -59,6 +59,19 @@
   color: #E8752A;
 }
 
+.recipe-manual-badge {
+  flex-shrink: 0;
+  margin-left: 12rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  background-color: #FFF3E8;
+  border: 2rpx solid rgba(232, 117, 42, 0.28);
+  font-size: 21rpx;
+  font-weight: 900;
+  color: #B65319;
+  line-height: 1.2;
+}
+
 .recipe-start-card {
   width: 100%;
   box-sizing: border-box;

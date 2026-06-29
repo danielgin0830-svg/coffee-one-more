@@ -236,6 +236,18 @@
   color: var(--page-accent);
 }
 
+.archive-manual-badge {
+  flex-shrink: 0;
+  padding: 5rpx 12rpx;
+  border-radius: 999rpx;
+  background-color: #FFF3E8;
+  border: 2rpx solid rgba(232, 117, 42, 0.28);
+  font-size: 20rpx;
+  font-weight: 900;
+  color: #B65319;
+  line-height: 1.2;
+}
+
 .archive-method {
   font-size: 24rpx;
   font-weight: 600;
@@ -400,6 +412,76 @@
   font-size: 29rpx;
   font-weight: 900;
   color: #FFFFFF;
+  line-height: 1.25;
+}
+
+.archive-note {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 14rpx;
+  padding: 20rpx 22rpx;
+  border-radius: 18rpx;
+  background-color: #FFFFFF;
+  border: 2rpx solid #EDE5D8;
+  border-left: 8rpx solid var(--page-accent);
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.archive-note-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.archive-note-label {
+  font-size: 25rpx;
+  font-weight: 900;
+  color: #2A211B;
+}
+
+.archive-note-edit {
+  padding: 6rpx 20rpx;
+  border-radius: 999rpx;
+  background-color: var(--page-accent-light);
+  color: var(--page-accent-dark);
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
+.archive-note-text {
+  font-size: 24rpx;
+  color: #7A6050;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.archive-note-empty {
+  font-size: 23rpx;
+  color: #9A8577;
+  line-height: 1.5;
+}
+
+.archive-edit-card {
+  width: 100%;
+  min-height: 96rpx;
+  box-sizing: border-box;
+  margin-top: 14rpx;
+  padding: 24rpx 28rpx;
+  border-radius: 22rpx;
+  background-color: #FFFFFF;
+  border: 2rpx solid var(--page-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.archive-edit-card text {
+  font-size: 29rpx;
+  font-weight: 900;
+  color: var(--page-accent-dark);
   line-height: 1.25;
 }
 

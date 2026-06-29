@@ -39,6 +39,7 @@
         <view class="archive-main">
           <view class="archive-title-row">
             <text class="archive-title">{{item.beanName || '未命名方案'}}</text>
+            <text class="archive-manual-badge" wx:if="{{item.archiveManualLabel}}">{{item.archiveManualLabel}}</text>
             <text class="archive-star" wx:if="{{item.bookmarked}}">★</text>
           </view>
           <text class="archive-method">{{item.archiveMethod}}</text>
@@ -70,6 +71,19 @@
           bind:sharecard="onShareCard"
           bind:startbrew="onStartBrewTimer"
         />
+        <view class="archive-note">
+          <view class="archive-note-head">
+            <text class="archive-note-label">风味备忘录</text>
+            <view class="archive-note-edit" bindtap="onEditNote" data-id="{{item.archiveId}}">
+              <text>{{item.personalNote ? '编辑' : '添加'}}</text>
+            </view>
+          </view>
+          <text class="archive-note-text" wx:if="{{item.personalNote}}">{{item.personalNote}}</text>
+          <text class="archive-note-empty" wx:else>记录你自己对这杯的个性化风味形容</text>
+        </view>
+        <view class="archive-edit-card" bindtap="onEditRecipe" data-id="{{item.archiveId}}">
+          <text>修改方案</text>
+        </view>
         <view class="archive-rebrew-card" bindtap="onRebrewFromArchive" data-id="{{item.archiveId}}">
           <text>马上再来一杯吧</text>
         </view>

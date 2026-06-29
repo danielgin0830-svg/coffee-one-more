@@ -1,6 +1,7 @@
 <view class="recipe-card">
   <view class="recipe-header">
     <text class="recipe-title">{{recipe.beanName || '冲煮方案'}}</text>
+    <text class="recipe-manual-badge" wx:if="{{isManualRecipe}}">手动方案</text>
     <view class="recipe-bookmark {{recipe.bookmarked ? 'active' : ''}}" bindtap="onBookmark">
       <text>{{recipe.bookmarked ? '★' : '☆'}}</text>
     </view>

@@ -20,6 +20,9 @@ const DEFAULT_STAGES = [
 Page({
   data: {
     saved: false,
+    isEdit: false,
+    editId: '',
+    pageTitle: '个人方案复刻',
     form: {
       beanName: '',
       methodName: '个人方案复刻',
@@ -47,9 +50,37 @@ Page({
     shareCardRecipe: null
   },
 
-  onLoad() {
+  onLoad(options = {}) {
     if (!requireLogin()) return;
+    if (options.editId) {
+      this.loadRecipeForEdit(decodeURIComponent(options.editId));
+    }
     this.updatePreviewRecipe();
+  },
+
+  // 需求③：把已保存方案载入表单做编辑（改的是页面临时副本，退出不保存即自动撤销）
+  loadRecipeForEdit(editId) {
+    const recipes = getUserStorageSync('recipes', []);
+    const recipe = recipes.find(item => String(item.id || item.savedAt || item.createdAt) === editId);
+    if (!recipe) {
+      wx.showToast({ title: '未找到方案', icon: 'none' });
+      return;
+    }
+    const form = { ...this.data.form };
+    const fields = ['beanName', 'methodName', 'methodSource', 'grindLabel', 'grindSetting', 'waterTemp', 'totalWater', 'ratioText', 'doseGrams', 'targetTime', 'cup', 'paper', 'grinderReference', 'grinderNote', 'waterName', 'waterTds', 'waterAdjustmentNote'];
+    fields.forEach(field => {
+      if (recipe[field] !== undefined && recipe[field] !== null) form[field] = String(recipe[field]);
+    });
+    form.risksText = Array.isArray(recipe.risks) ? recipe.risks.join('\n') : (recipe.risksText || '');
+    const stages = (Array.isArray(recipe.stages) && recipe.stages.length)
+      ? recipe.stages.map(stage => ({
+        name: stage.name || '',
+        water: stage.water !== undefined && stage.water !== null ? String(stage.water) : '',
+        duration: stage.duration || '',
+        pourStyle: stage.pourStyle || stage.detail || ''
+      }))
+      : this.data.stages;
+    this.setData({ isEdit: true, editId, pageTitle: '修改方案', form, stages });
   },
 
   onFieldInput(e) {
@@ -179,6 +210,11 @@ Page({
       return;
     }
 
+    if (this.data.isEdit) {
+      this.saveEditedRecipe(recipe);
+      return;
+    }
+
     const now = new Date().toISOString();
     const savedRecipe = {
       ...recipe,
@@ -197,6 +233,47 @@ Page({
     wx.showToast({
       title: '已保存',
       icon: 'success'
+    });
+  },
+
+  // 需求③：保存手动修改——先弹窗告知风险，确认后更新原方案并解除参数联动
+  saveEditedRecipe(recipe) {
+    wx.showModal({
+      title: '确认修改',
+      content: '手动修改后，这条方案将不再参与系统的参数联动（研磨 / 水温 / 风味反馈等自动校准），仅作为你的个人记录保存。确定保存修改吗？',
+      confirmText: '确定保存',
+      cancelText: '再想想',
+      success: (res) => {
+        if (!res.confirm) return;
+        const editId = this.data.editId;
+        const now = new Date().toISOString();
+        const recipes = getUserStorageSync('recipes', []);
+        const index = recipes.findIndex(item => String(item.id || item.savedAt || item.createdAt) === editId);
+        if (index < 0) {
+          wx.showToast({ title: '未找到原方案', icon: 'none' });
+          return;
+        }
+        const original = recipes[index];
+        recipes[index] = {
+          ...original,
+          ...recipe,
+          id: original.id || Date.now().toString(),
+          createdAt: original.createdAt || now,
+          savedAt: now,
+          saved: true,
+          manualReplica: true,
+          linkedToFramework: false,
+          manualEdited: true,
+          feedbackOptions: [],
+          feedback: null,
+          appliedFeedback: null,
+          nextFeedbackAdjustment: null
+        };
+        setUserStorageSync('recipes', recipes);
+        this.setData({ saved: true, previewRecipe: recipes[index] });
+        wx.showToast({ title: '修改已保存', icon: 'success' });
+        setTimeout(() => wx.navigateBack(), 800);
+      }
     });
   },
 

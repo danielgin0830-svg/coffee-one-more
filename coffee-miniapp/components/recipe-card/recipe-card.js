@@ -50,6 +50,7 @@ Component({
     displayMethodName: '',
     displayMethodSource: '',
     displayRatioText: '',
+    isManualRecipe: false,
     grinderTipExpanded: false
   },
 
@@ -84,8 +85,13 @@ Component({
         displayStages: stages,
         displayMethodName,
         displayMethodSource,
-        displayRatioText: formatRecipeRatioText(recipe, '-')
+        displayRatioText: formatRecipeRatioText(recipe, '-'),
+        isManualRecipe: this.isManualRecipe(recipe)
       });
+    },
+
+    isManualRecipe(recipe = {}) {
+      return !!recipe.manualReplica || !!recipe.manualEdited || recipe.linkedToFramework === false;
     },
 
     formatStageWater(value) {

@@ -79,6 +79,7 @@ Page({
       archiveDate: this.formatArchiveDate(savedTime),
       archiveMeta: meta.join(' · '),
       archiveMethod: this.getArchiveMethodName(recipe),
+      archiveManualLabel: this.isManualRecipe(recipe) ? '手动方案' : '',
       archiveFeedbackLabel: feedback ? `本次反馈：${feedback.label}` : '',
       archiveFeedbackTone: feedback ? this.getFeedbackTone(feedback) : '',
       archiveFeedbackText: feedback ? feedback.text : '',
@@ -86,6 +87,10 @@ Page({
       archiveFeedbackNext: recipe.nextFeedbackAdjustment ? recipe.nextFeedbackAdjustment.note : '',
       batchSelected: selectedBatchIds.includes(archiveId)
     };
+  },
+
+  isManualRecipe(recipe = {}) {
+    return !!recipe.manualReplica || !!recipe.manualEdited || recipe.linkedToFramework === false;
   },
 
   getArchiveBeanFlavorNotes(recipe = {}, beanById = {}) {
@@ -252,6 +257,39 @@ Page({
     );
     this.setData({ recipes });
     this.persistRecipes(recipes);
+  },
+
+  // 需求④：个性化风味备忘录（用原生输入弹窗，轻量，不另起页面）
+  onEditNote(e) {
+    if (!requireLogin('登录后可给方案添加风味备忘。')) return;
+    const archiveId = e.currentTarget.dataset.id;
+    const recipe = this.data.recipes.find(item => item.archiveId === archiveId);
+    if (!recipe) return;
+    wx.showModal({
+      title: '风味备忘录',
+      editable: true,
+      placeholderText: '写下你对这杯的个性化风味形容…',
+      content: recipe.personalNote || '',
+      success: (res) => {
+        if (!res.confirm) return;
+        const personalNote = String(res.content || '').trim();
+        const recipes = this.data.recipes.map(item =>
+          item.archiveId === archiveId ? { ...item, personalNote } : item
+        );
+        this.setData({ recipes });
+        this.persistRecipes(recipes);
+        wx.showToast({ title: personalNote ? '已保存备忘' : '已清空备忘', icon: 'none' });
+      }
+    });
+  },
+
+  // 需求③：进入方案编辑（复用 replica 表单的编辑模式，改完不再参与参数联动）
+  onEditRecipe(e) {
+    if (!requireLogin('登录后可修改你的方案。')) return;
+    const archiveId = e.currentTarget.dataset.id;
+    wx.navigateTo({
+      url: `/pages/recipes/replica/replica?editId=${encodeURIComponent(archiveId)}`
+    });
   },
 
   onRetry() {
