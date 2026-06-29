@@ -21,6 +21,12 @@ const {
 const TARGET_COVER_IMAGE_BYTES = 650 * 1024;
 const MAX_COVER_IMAGE_BYTES = 2 * 1024 * 1024;
 
+// 需求②：仅「名称 / 风味描述」支持多候选按点选顺序叠加；日期 / 烘焙度 / 处理法保持单选替换
+const APPENDABLE_OCR_FIELDS = {
+  name: ' ',
+  flavorNotes: '、'
+};
+
 Page({
   data: {
     isEdit: false,
@@ -491,25 +497,41 @@ Page({
     return `${Math.round(value * 100)}%`;
   },
 
+  // 需求②：名称 / 风味描述按点选顺序叠加（去重）；日期 / 烘焙度 / 处理法保持单选替换
   onApplyOcrCandidate(e) {
     const { field, value } = e.currentTarget.dataset;
     if (!field || value === undefined) return;
 
-    const nextData = {
-      ['form.' + field]: String(value)
-    };
-    if (field === 'processing') {
-      nextData.processingLabel = this.getProcessingLabel(value);
-    }
-    if (field === 'roastLevel') {
-      nextData.roastLevelIndex = getRoastLevelIndex(value);
-      nextData.roastLevelLabel = getRoastLevelLabel(value);
+    const nextData = {};
+    const separator = APPENDABLE_OCR_FIELDS[field];
+    if (separator !== undefined) {
+      nextData['form.' + field] = this.appendCandidateValue(this.data.form[field], value, separator);
+    } else {
+      nextData['form.' + field] = String(value);
+      if (field === 'processing') {
+        nextData.processingLabel = this.getProcessingLabel(value);
+      }
+      if (field === 'roastLevel') {
+        nextData.roastLevelIndex = getRoastLevelIndex(value);
+        nextData.roastLevelLabel = getRoastLevelLabel(value);
+      }
     }
 
     this.setData({
       ...nextData,
       ocrCandidateGroups: this.removeOcrCandidate(field, value)
     });
+  },
+
+  // 把候选值按分隔符追加到已填内容末尾；已存在的片段不重复追加，便于用户按需叠加后再编辑
+  appendCandidateValue(current, value, separator) {
+    const incoming = String(value === undefined || value === null ? '' : value).trim();
+    const existing = String(current === undefined || current === null ? '' : current).trim();
+    if (!incoming) return existing;
+    const parts = existing ? existing.split(separator).map(item => item.trim()).filter(Boolean) : [];
+    if (parts.includes(incoming)) return existing;
+    parts.push(incoming);
+    return parts.join(separator);
   },
 
   removeOcrCandidate(field, value) {
