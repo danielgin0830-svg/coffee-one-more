@@ -46,6 +46,37 @@
   border-color: #E8752A;
 }
 
+.form-picker {
+  height: 88rpx;
+  background-color: #FFFFFF;
+  border: 2rpx solid #EDE5D8;
+  border-radius: 20rpx;
+  padding: 0 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-picker-value {
+  font-size: 28rpx;
+  color: #2A211B;
+  flex: 1;
+  min-width: 0;
+}
+
+.form-picker-arrow {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  font-size: 36rpx;
+  color: #9A8577;
+}
+
+.form-hint {
+  font-size: 22rpx;
+  color: #7A6050;
+  line-height: 1.5;
+}
+
 /* 保存按钮 - 抹茶绿，区别于下一步操作 */
 .btn-save {
   width: 100%;
