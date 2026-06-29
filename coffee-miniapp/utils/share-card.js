@@ -4,6 +4,7 @@ const { formatRecipeRatioText } = require('./ratio.js');
 
 const CANVAS_ID = 'shareRecipeCanvas';
 const DEFAULT_SHARE_IMAGE_URL = '/assets/share-cover.jpg';
+const DEFAULT_SHARE_QR_IMAGE = '/assets/share-qr.jpg';
 
 // 参考「晴空橙光奶油组」配色：蓝做核心数据主块、橙做回流 CTA、米白打底
 const COLORS = {
@@ -308,14 +309,14 @@ function drawBottomCta(ctx, recipe) {
   ctx.setFontSize(18);
   ctx.fillText('扫码生成你的专属方案', 44, oy + 76);
 
-  // 右下角小程序码：传入 recipe.shareQrImage（本地/临时路径）即绘制真码，否则显示占位
-  const qrImage = recipe.shareQrImage || '';
+  // 右下角小程序码：传入 recipe.shareQrImage 可覆盖默认静态码。
+  const qrImage = recipe.shareQrImage || DEFAULT_SHARE_QR_IMAGE;
   const qs = 80;
   const qx = CARD_WIDTH - 44 - qs;
   const qy = oy + (oh - qs) / 2;
   drawRoundRect(ctx, qx, qy, qs, qs, 12, COLORS.white);
   if (qrImage) {
-    ctx.drawImage(qrImage, qx + 6, qy + 6, qs - 12, qs - 12);
+    ctx.drawImage(qrImage, qx, qy, qs, qs);
   } else {
     ctx.setTextAlign('center');
     ctx.setFillStyle(COLORS.orange);
