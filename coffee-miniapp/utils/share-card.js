@@ -1,11 +1,23 @@
-const CARD_WIDTH = 600;
-const CARD_HEIGHT = 700;
+const CARD_WIDTH = 640;
+const CARD_HEIGHT = 720;
 const { formatRecipeRatioText } = require('./ratio.js');
 
 const CANVAS_ID = 'shareRecipeCanvas';
 const DEFAULT_SHARE_IMAGE_URL = '/assets/share-cover.jpg';
 
-function getRecipeShareTitle(recipe = {}) {
+// 参考「晴空橙光奶油组」配色：蓝做核心数据主块、橙做回流 CTA、米白打底
+const COLORS = {
+  cream: '#FAEDD1',
+  blue: '#1387C0',
+  orange: '#F4520D',
+  ink: '#0E3A52',
+  sub: '#A07E4E',
+  label: '#9A8056',
+  line: '#ECD9B4',
+  white: '#FFFFFF'
+};
+
+function getRecipeShareTitle() {
   return '别想那么多 咖一杯先';
 }
 
@@ -119,9 +131,12 @@ function saveRecipeShareCard(page) {
 function drawRecipeShareCard(page, recipe) {
   return new Promise((resolve, reject) => {
     const ctx = wx.createCanvasContext(CANVAS_ID, page);
-    drawBackground(ctx);
-    drawHeader(ctx, recipe);
-    drawRecipeSummary(ctx, recipe);
+    drawCardBackground(ctx);
+    drawBrandBar(ctx);
+    drawBeanTitle(ctx, recipe);
+    drawCoreStats(ctx, recipe);
+    drawDetails(ctx, recipe);
+    drawBottomCta(ctx, recipe);
 
     ctx.draw(false, () => {
       wx.canvasToTempFilePath({
@@ -139,80 +154,212 @@ function drawRecipeShareCard(page, recipe) {
   });
 }
 
-function drawBackground(ctx) {
-  ctx.setFillStyle('#FAF7F2');
+function drawCardBackground(ctx) {
+  ctx.setFillStyle(COLORS.white);
   ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+  drawRoundRect(ctx, 0, 0, CARD_WIDTH, CARD_HEIGHT, 28, COLORS.cream);
+}
 
-  drawRoundRect(ctx, 30, 30, 540, 640, 28, '#FFFFFF');
-  ctx.setStrokeStyle('#EDE5D8');
+function drawBrandBar(ctx) {
+  ctx.beginPath();
+  ctx.arc(52, 60, 8, 0, Math.PI * 2);
+  ctx.setFillStyle(COLORS.orange);
+  ctx.fill();
+
+  ctx.setTextAlign('left');
+  ctx.setFillStyle(COLORS.ink);
+  ctx.setFontSize(26);
+  ctx.fillText('搞杯喝的', 70, 69);
+
+  const tagW = 116;
+  const tagX = CARD_WIDTH - 44 - tagW;
+  const tagY = 44;
+  const tagH = 34;
+  roundRectPath(ctx, tagX, tagY, tagW, tagH, 17);
+  ctx.setStrokeStyle(COLORS.blue);
   ctx.setLineWidth(2);
-  roundRectPath(ctx, 30, 30, 540, 640, 28);
   ctx.stroke();
-
-  drawRoundRect(ctx, 30, 30, 540, 138, 28, '#FFE8D8');
-  ctx.setFillStyle('#E8752A');
-  ctx.fillRect(30, 138, 540, 30);
+  ctx.setTextAlign('center');
+  ctx.setFillStyle(COLORS.blue);
+  ctx.setFontSize(20);
+  ctx.fillText('手冲记录', tagX + tagW / 2, tagY + 23);
 }
 
-function drawHeader(ctx, recipe) {
-  drawRoundRect(ctx, 54, 56, 172, 40, 20, '#E8752A');
-  ctx.setFillStyle('#FFFFFF');
-  ctx.setFontSize(22);
-  ctx.fillText('朋友圈小卡片', 72, 83);
+function drawBeanTitle(ctx, recipe) {
+  ctx.setTextAlign('left');
+  ctx.setFillStyle(COLORS.ink);
+  ctx.setFontSize(44);
+  const name = String(recipe.beanName || '未命名咖啡豆').trim();
+  const lines = splitBeanLines(ctx, name);
+  const top = 140;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, 44, top + i * 56);
+  });
+  const titleBottom = top + (lines.length - 1) * 56;
 
-  ctx.setFillStyle('#2A211B');
-  ctx.setFontSize(38);
-  drawWrappedText(ctx, recipe.beanName || '未命名咖啡豆', 54, 130, 480, 44, 2, 38);
-
-  ctx.setFillStyle('#7A6050');
-  ctx.setFontSize(22);
-  const method = getMethodText(recipe);
-  ctx.fillText(method, 54, 192);
+  const subtitle = buildSubtitle(recipe);
+  if (subtitle) {
+    ctx.setTextAlign('left');
+    ctx.setFillStyle(COLORS.sub);
+    ctx.setFontSize(22);
+    ctx.fillText(clampText(ctx, subtitle, CARD_WIDTH - 88, 22), 44, titleBottom + 44);
+  }
 }
 
-function drawRecipeSummary(ctx, recipe) {
-  const top = 226;
-  drawInfoPill(ctx, 54, top, '粉量', formatUnit(recipe.doseGrams, 'g'));
-  drawInfoPill(ctx, 290, top, '总水量', formatUnit(recipe.totalWater, 'g'));
-  drawInfoPill(ctx, 54, top + 92, '比例', formatRecipeRatioText(recipe, '-'));
-  drawInfoPill(ctx, 290, top + 92, '水温', formatUnit(recipe.waterTemp, '°C'));
-
-  drawKeyRow(ctx, 54, top + 198, '研磨度', recipe.grindSetting || recipe.grinderReference || '-');
-  drawKeyRow(ctx, 54, top + 286, '器具组合', formatGearText(recipe));
-  drawKeyRow(ctx, 54, top + 374, '目标时间', recipe.targetTime || '-');
+// 名称含空格时按主名 / 细节断两行；否则按卡片宽度自然折至多两行
+function splitBeanLines(ctx, name) {
+  ctx.setFontSize(44);
+  const maxW = CARD_WIDTH - 88;
+  const spaceIdx = name.search(/\s/);
+  if (spaceIdx > 0) {
+    const first = name.slice(0, spaceIdx).trim();
+    const second = name.slice(spaceIdx + 1).trim();
+    return [first, clampText(ctx, second, maxW, 44)].filter(Boolean);
+  }
+  if (getTextWidth(ctx, name, 44) <= maxW) return [name];
+  let cut = '';
+  let i = 0;
+  for (; i < name.length; i += 1) {
+    if (getTextWidth(ctx, cut + name[i], 44) > maxW) break;
+    cut += name[i];
+  }
+  return [cut, clampText(ctx, name.slice(i), maxW, 44)];
 }
 
-function drawInfoPill(ctx, x, y, label, value) {
-  drawRoundRect(ctx, x, y, 214, 68, 18, '#FAF7F2');
-  ctx.setStrokeStyle('#EDE5D8');
-  ctx.setLineWidth(2);
-  roundRectPath(ctx, x, y, 214, 68, 18);
-  ctx.stroke();
-  ctx.setFillStyle('#7A6050');
+function drawCoreStats(ctx, recipe) {
+  const bx = 44;
+  const by = 264;
+  const bw = CARD_WIDTH - 88;
+  const bh = 108;
+  drawRoundRect(ctx, bx, by, bw, bh, 18, COLORS.blue);
+
+  const cellW = bw / 3;
+  const stats = [
+    { value: formatUnit(recipe.doseGrams, 'g'), label: '粉量' },
+    { value: formatRecipeRatioText(recipe, '-'), label: '粉水比' },
+    { value: formatUnit(recipe.waterTemp, '°C'), label: '水温' }
+  ];
+
+  stats.forEach((stat, i) => {
+    if (i > 0) {
+      const lineX = bx + cellW * i;
+      ctx.beginPath();
+      ctx.moveTo(lineX, by + 22);
+      ctx.lineTo(lineX, by + bh - 22);
+      ctx.setStrokeStyle('rgba(255,255,255,0.25)');
+      ctx.setLineWidth(1);
+      ctx.stroke();
+    }
+    const cx = bx + cellW * i + cellW / 2;
+    ctx.setTextAlign('center');
+    ctx.setFillStyle(COLORS.white);
+    ctx.setFontSize(34);
+    ctx.fillText(clampText(ctx, stat.value, cellW - 24, 34), cx, by + 56);
+    ctx.setFillStyle('rgba(255,255,255,0.85)');
+    ctx.setFontSize(20);
+    ctx.fillText(stat.label, cx, by + 90);
+  });
+}
+
+function drawDetails(ctx, recipe) {
+  const rows = [
+    ['总水量', formatUnit(recipe.totalWater, 'g')],
+    ['研磨度', recipe.grindSetting || recipe.grinderReference || '-'],
+    ['器具组合', formatGearText(recipe)],
+    ['冲煮时间', recipe.targetTime || '-']
+  ];
+  const left = 44;
+  const right = CARD_WIDTH - 44;
+  const rowH = 50;
+  let y = 402;
+  rows.forEach((row, i) => {
+    ctx.setTextAlign('left');
+    ctx.setFillStyle(COLORS.label);
+    ctx.setFontSize(22);
+    ctx.fillText(row[0], left, y + 14);
+
+    ctx.setTextAlign('right');
+    ctx.setFillStyle(COLORS.ink);
+    ctx.setFontSize(22);
+    ctx.fillText(clampText(ctx, String(row[1] || '-'), 360, 22), right, y + 14);
+
+    if (i < rows.length - 1) {
+      ctx.beginPath();
+      ctx.moveTo(left, y + rowH - 14);
+      ctx.lineTo(right, y + rowH - 14);
+      ctx.setStrokeStyle(COLORS.line);
+      ctx.setLineWidth(1);
+      ctx.stroke();
+    }
+    y += rowH;
+  });
+}
+
+function drawBottomCta(ctx, recipe) {
+  const oy = 612;
+  const oh = CARD_HEIGHT - oy;
+  drawRoundRectMixed(ctx, 0, oy, CARD_WIDTH, oh, { br: 28, bl: 28 }, COLORS.orange);
+
+  ctx.setTextAlign('left');
+  ctx.setFillStyle(COLORS.white);
+  ctx.setFontSize(26);
+  ctx.fillText('别想那么多 咖一杯先', 44, oy + 44);
+  ctx.setFillStyle('rgba(255,255,255,0.88)');
   ctx.setFontSize(18);
-  ctx.fillText(label, x + 22, y + 26);
-  ctx.setFillStyle('#2A211B');
-  ctx.setFontSize(28);
-  ctx.fillText(value || '-', x + 22, y + 54);
+  ctx.fillText('扫码生成你的专属方案', 44, oy + 76);
+
+  // 右下角小程序码：传入 recipe.shareQrImage（本地/临时路径）即绘制真码，否则显示占位
+  const qrImage = recipe.shareQrImage || '';
+  const qs = 80;
+  const qx = CARD_WIDTH - 44 - qs;
+  const qy = oy + (oh - qs) / 2;
+  drawRoundRect(ctx, qx, qy, qs, qs, 12, COLORS.white);
+  if (qrImage) {
+    ctx.drawImage(qrImage, qx + 6, qy + 6, qs - 12, qs - 12);
+  } else {
+    ctx.setTextAlign('center');
+    ctx.setFillStyle(COLORS.orange);
+    ctx.setFontSize(16);
+    ctx.fillText('小程序码', qx + qs / 2, qy + qs / 2 + 6);
+  }
 }
 
-function drawKeyRow(ctx, x, y, label, value) {
-  drawRoundRect(ctx, x, y, 492, 68, 18, '#FFFAF6');
-  ctx.setStrokeStyle('#F0A86F');
-  ctx.setLineWidth(2);
-  roundRectPath(ctx, x, y, 492, 68, 18);
-  ctx.stroke();
-  ctx.setFillStyle('#7A6050');
-  ctx.setFontSize(19);
-  ctx.fillText(label, x + 22, y + 26);
-  ctx.setFillStyle('#2A211B');
-  ctx.setFontSize(23);
-  drawWrappedText(ctx, value || '-', x + 118, y + 42, 360, 26, 1, 23);
+// 副标题：烘焙度打头，其后追加用户填写的其他信息（去掉「产地：」等前缀），「·」隔开；不再显示冲煮路线
+function buildSubtitle(recipe = {}) {
+  const parts = [];
+  const roast = String(recipe.roastLevel || '').trim();
+  if (roast) parts.push(roast);
+  const extra = String(recipe.beanExtraInfo || '').trim();
+  if (extra) {
+    extra.split('·').forEach((segment) => {
+      const piece = segment.indexOf('：') >= 0
+        ? segment.slice(segment.indexOf('：') + 1)
+        : segment;
+      const text = String(piece || '').trim();
+      if (text) parts.push(text);
+    });
+  }
+  return parts.join(' · ');
 }
 
+// 器具组合优先展示滤杯类型（cupCategory），再接滤纸
 function formatGearText(recipe = {}) {
-  const parts = [recipe.cup, recipe.paper].filter(Boolean);
-  return parts.length ? parts.join(' / ') : '-';
+  const cup = String(recipe.cupCategory || recipe.cup || '').trim();
+  const paper = String(recipe.paper || '').trim();
+  const parts = [cup, paper].filter(Boolean);
+  return parts.length ? parts.join(' · ') : '-';
+}
+
+function clampText(ctx, text, maxWidth, fontSize) {
+  const value = String(text || '');
+  ctx.setFontSize(fontSize);
+  if (getTextWidth(ctx, value, fontSize) <= maxWidth) return value;
+  let cut = '';
+  for (let i = 0; i < value.length; i += 1) {
+    if (getTextWidth(ctx, cut + value[i] + '…', fontSize) > maxWidth) break;
+    cut += value[i];
+  }
+  return cut + '…';
 }
 
 function drawRoundRect(ctx, x, y, width, height, radius, color) {
@@ -236,28 +383,24 @@ function roundRectPath(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
-function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines, fontSize) {
-  const chars = String(text || '').split('');
-  const lines = [];
-  let current = '';
-
-  chars.forEach((char) => {
-    if (lines.length >= maxLines) return;
-    const candidate = current + char;
-    const width = getTextWidth(ctx, candidate, fontSize);
-    if (width > maxWidth && current) {
-      lines.push(current);
-      current = char;
-    } else {
-      current = candidate;
-    }
-  });
-
-  if (current && lines.length < maxLines) lines.push(current);
-  lines.forEach((line, index) => {
-    ctx.fillText(line, x, y + index * lineHeight);
-  });
-  return y + lines.length * lineHeight;
+function drawRoundRectMixed(ctx, x, y, width, height, radii, color) {
+  const tl = radii.tl || 0;
+  const tr = radii.tr || 0;
+  const br = radii.br || 0;
+  const bl = radii.bl || 0;
+  ctx.beginPath();
+  ctx.moveTo(x + tl, y);
+  ctx.lineTo(x + width - tr, y);
+  if (tr) ctx.arc(x + width - tr, y + tr, tr, Math.PI * 1.5, Math.PI * 2);
+  ctx.lineTo(x + width, y + height - br);
+  if (br) ctx.arc(x + width - br, y + height - br, br, 0, Math.PI * 0.5);
+  ctx.lineTo(x + bl, y + height);
+  if (bl) ctx.arc(x + bl, y + height - bl, bl, Math.PI * 0.5, Math.PI);
+  ctx.lineTo(x, y + tl);
+  if (tl) ctx.arc(x + tl, y + tl, tl, Math.PI, Math.PI * 1.5);
+  ctx.closePath();
+  ctx.setFillStyle(color);
+  ctx.fill();
 }
 
 function getTextWidth(ctx, text, fontSize) {
@@ -265,17 +408,6 @@ function getTextWidth(ctx, text, fontSize) {
     return ctx.measureText(text).width;
   }
   return String(text || '').length * fontSize;
-}
-
-function getMethodText(recipe = {}) {
-  const methodName = recipe.methodName === '创建个人方案' ? '' : recipe.methodName;
-  const parts = [
-    methodName,
-    recipe.route,
-    recipe.cup,
-    recipe.paper
-  ].filter(Boolean);
-  return parts.length ? parts.slice(0, 2).join(' · ') : '当前框架';
 }
 
 function formatUnit(value, unit) {

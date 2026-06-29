@@ -155,8 +155,8 @@ view, text, scroll-view, swiper, swiper-item {
   position: fixed;
   left: -9999px;
   top: -9999px;
-  width: 600px;
-  height: 700px;
+  width: 640px;
+  height: 720px;
 }
 
 .share-card-mask {
