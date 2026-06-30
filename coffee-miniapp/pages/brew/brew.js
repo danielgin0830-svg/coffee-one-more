@@ -21,6 +21,9 @@ const {
   getActualRatioValue
 } = require('../../utils/ratio.js');
 const {
+  appendBrewLog
+} = require('../../utils/brew-log.js');
+const {
   buildSharePayload,
   buildTimelinePayload,
   closeRecipeShareCard,
@@ -2212,6 +2215,17 @@ Page({
       updatedAt: new Date().toISOString()
     };
     setUserStorageSync('beans', beans);
+    // 需求②埋点：记录一条冲煮消费流水，供后续消费趋势 / 咖啡人格统计
+    if (deductedAmount > 0) {
+      const consumedBean = beans[index];
+      appendBrewLog({
+        beanId,
+        beanName: consumedBean.name,
+        grams: deductedAmount,
+        processing: consumedBean.processing,
+        roastLevel: consumedBean.roastLevel
+      });
+    }
     return { deducted: deductedAmount > 0, deductedAmount, before, after };
   },
 
