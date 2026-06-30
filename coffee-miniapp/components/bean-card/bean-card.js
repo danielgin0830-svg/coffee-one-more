@@ -56,6 +56,13 @@ Component({
 
     onTap() {
       this.triggerEvent('select', { bean: this.data.bean });
+    },
+
+    onTapExpiryDot() {
+      wx.showToast({
+        title: '即将错过最佳赏味期',
+        icon: 'none'
+      });
     }
   }
 });

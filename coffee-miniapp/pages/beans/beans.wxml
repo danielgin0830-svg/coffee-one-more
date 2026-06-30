@@ -88,7 +88,7 @@
         bindtap="onTapBean"
       >
         <view class="bean-tile-cover {{item.coverImage ? 'has-image' : 'no-image'}} age-{{item.roastAgeClass}}">
-          <view class="bean-tile-expiry-dot" wx:if="{{item.isNearExpiry}}"></view>
+          <view class="bean-tile-expiry-dot" wx:if="{{item.isNearExpiry}}" catchtap="onTapExpiryDot"></view>
           <image wx:if="{{item.coverImage}}" class="bean-tile-image" src="{{item.coverImage}}" mode="aspectFill" />
           <view wx:if="{{item.coverImage}}" class="bean-tile-image-mask"></view>
           <view class="bean-tile-top">

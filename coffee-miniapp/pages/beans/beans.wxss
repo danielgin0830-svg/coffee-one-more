@@ -560,15 +560,15 @@
 /* 临期红点角标：进入赏味期尾段 / 已过期时提示尽快饮用 */
 .bean-tile-expiry-dot {
   position: absolute;
-  top: 12rpx;
-  right: 12rpx;
+  top: -2rpx;
+  right: -2rpx;
   z-index: 3;
-  width: 18rpx;
-  height: 18rpx;
-  border-radius: 50%;
-  background-color: #E05050;
-  border: 3rpx solid #FFFFFF;
-  box-shadow: 0 2rpx 8rpx rgba(224, 80, 80, 0.5);
+  width: 48rpx;
+  height: 48rpx;
+  border-top-right-radius: 24rpx;
+  border-bottom-left-radius: 48rpx;
+  background: linear-gradient(135deg, #FF7A66 0%, #D94F4F 100%);
+  box-shadow: -2rpx 4rpx 10rpx rgba(217, 79, 79, 0.34);
 }
 
 .bean-tile-top {

@@ -82,6 +82,13 @@ Page({
     });
   },
 
+  onTapExpiryDot() {
+    wx.showToast({
+      title: '即将错过最佳赏味期',
+      icon: 'none'
+    });
+  },
+
   onToggleBatchMode() {
     if (!this.data.batchMode && !requireLogin('登录后可批量管理你的豆仓。')) return;
     const batchMode = !this.data.batchMode;
