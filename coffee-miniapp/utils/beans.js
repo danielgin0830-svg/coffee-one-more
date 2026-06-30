@@ -30,6 +30,7 @@ function enrichBean(bean = {}, selectedBatchIds = []) {
     roastAgeSort: roastAgeDays >= 0 ? roastAgeDays : -1,
     roastAgeLabel: roastAgeDays >= 0 ? `烘焙后 ${roastAgeDays} 天` : '未记录烘焙日期',
     roastAgeClass: getRoastAgeClass(roastAgeDays, bean.roastLevel),
+    isNearExpiry: isNearExpiry(roastAgeDays, bean.roastLevel),
     batchSelected: selectedBatchIds.includes(bean.id)
   };
 }
@@ -98,6 +99,9 @@ const ROAST_AGE_THRESHOLDS = {
   dark: { fresh: 4, old: 21 }      // 深烘 / 极深烘：排气快，赏味期前移
 };
 
+// 临期窗口：进入「最佳赏味期」最后 N 天起、直到过期，提示尽快饮用（用于豆卡红点角标）
+const NEAR_EXPIRY_WINDOW_DAYS = 5;
+
 function getRoastAgeThreshold(roastLevel) {
   if (roastLevel === 'dark' || roastLevel === 'ultra_dark') return ROAST_AGE_THRESHOLDS.dark;
   if (roastLevel === 'medium') return ROAST_AGE_THRESHOLDS.medium;
@@ -111,6 +115,13 @@ function getRoastAgeClass(days, roastLevel) {
   if (days >= threshold.old) return 'old';
   if (days <= threshold.fresh) return 'fresh';
   return 'ready';
+}
+
+// 是否进入临期：最佳赏味期最后 NEAR_EXPIRY_WINDOW_DAYS 天起，含已过期。养豆中 / 最佳期前段不计
+function isNearExpiry(days, roastLevel) {
+  if (days < 0) return false;
+  const threshold = getRoastAgeThreshold(roastLevel);
+  return days >= threshold.old - NEAR_EXPIRY_WINDOW_DAYS;
 }
 
 function getRoastLevelLabel(roastLevel) {
@@ -148,6 +159,7 @@ module.exports = {
   formatNumber,
   getRoastAgeClass,
   getRoastAgeDays,
+  isNearExpiry,
   getRoastLevelIndex,
   getRoastLevelLabel,
   getStockNumber,

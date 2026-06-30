@@ -557,6 +557,20 @@
   background: linear-gradient(180deg, rgba(45, 36, 32, 0.18) 0%, rgba(45, 36, 32, 0.05) 42%, rgba(45, 36, 32, 0.62) 100%);
 }
 
+/* 临期红点角标：进入赏味期尾段 / 已过期时提示尽快饮用 */
+.bean-tile-expiry-dot {
+  position: absolute;
+  top: 12rpx;
+  right: 12rpx;
+  z-index: 3;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background-color: #E05050;
+  border: 3rpx solid #FFFFFF;
+  box-shadow: 0 2rpx 8rpx rgba(224, 80, 80, 0.5);
+}
+
 .bean-tile-top {
   position: relative;
   z-index: 2;
