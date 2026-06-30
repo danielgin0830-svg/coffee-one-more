@@ -2,6 +2,9 @@
   "pages": [
     "pages/brew/brew",
     "pages/brew/timer/timer",
+    "pages/reports/reports",
+    "pages/reports/weekly/weekly",
+    "pages/reports/monthly/monthly",
     "pages/recipes/recipes",
     "pages/recipes/replica/replica",
     "pages/beans/beans",

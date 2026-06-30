@@ -14,6 +14,7 @@ const USER_DATA_KEYS = [
   'equipmentHiddenIds',
   'equipmentShownIds',
   'recipes',
+  'brewLogs',
   'beanFeedbackAdjustments',
   TOMBSTONE_KEY
 ];

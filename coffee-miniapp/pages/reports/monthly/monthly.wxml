@@ -1,0 +1,67 @@
+<view class="report-detail-page">
+  <nav-bar title="{{reportTitle}}" showBack="{{true}}" />
+
+  <scroll-view class="report-scroll" scroll-y="true">
+    <block wx:if="{{report && report.available}}">
+      <view class="report-hero-card">
+        <text class="report-period">{{report.periodLabel}}</text>
+        <text class="report-hero-title">{{report.heroTitle}}</text>
+        <text class="report-summary">{{report.summary}}</text>
+      </view>
+
+      <view class="metric-grid">
+        <view class="metric-card">
+          <text class="metric-value">{{report.totalCups}}</text>
+          <text class="metric-label">总杯数</text>
+        </view>
+        <view class="metric-card">
+          <text class="metric-value">{{report.totalGrams}}g</text>
+          <text class="metric-label">豆子消耗</text>
+        </view>
+        <view class="metric-card">
+          <text class="metric-value">{{report.activeDays}}</text>
+          <text class="metric-label">有记录天数</text>
+        </view>
+      </view>
+
+      <view class="section-card">
+        <text class="section-title">每天喝了多少</text>
+        <view class="daily-row" wx:for="{{report.daily}}" wx:key="dateKey">
+          <text class="daily-label">{{item.label}}</text>
+          <view class="daily-track">
+            <view class="daily-bar" style="width: {{item.barWidth}}%;"></view>
+          </view>
+          <text class="daily-value">{{item.cups ? item.cups + '杯' : '-'}}</text>
+        </view>
+      </view>
+
+      <view class="section-card">
+        <text class="section-title">这段时间的偏好</text>
+        <view class="insight-list">
+          <view class="insight-row">
+            <text class="insight-label">最常喝</text>
+            <text class="insight-value">{{report.topBeanLabel}} · {{report.topBeanCups}} 杯</text>
+          </view>
+          <view class="insight-row">
+            <text class="insight-label">处理法</text>
+            <text class="insight-value">{{report.topProcessingLabel}} · {{report.topProcessingCups}} 杯</text>
+          </view>
+          <view class="insight-row">
+            <text class="insight-label">烘焙度</text>
+            <text class="insight-value">{{report.topRoastLabel}} · {{report.topRoastCups}} 杯</text>
+          </view>
+          <view class="insight-row">
+            <text class="insight-label">平均粉量</text>
+            <text class="insight-value">{{report.avgGrams}}g / 杯</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view class="report-empty" wx:if="{{report && !report.available}}">
+      <text class="report-empty-icon">□</text>
+      <text class="report-empty-title">{{report.emptyMessage}}</text>
+      <text class="report-empty-desc">{{report.progressText}}，继续记录几天就能生成。</text>
+    </view>
+  </scroll-view>
+</view>

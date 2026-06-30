@@ -33,7 +33,10 @@ function appendBrewLog(entry = {}) {
 }
 
 function getBrewLogs() {
-  return getUserStorageSync(BREW_LOG_KEY, []);
+  const logs = getUserStorageSync(BREW_LOG_KEY, []);
+  if (Array.isArray(logs) && logs.length) return logs;
+  const legacyLogs = wx.getStorageSync(BREW_LOG_KEY);
+  return Array.isArray(legacyLogs) ? legacyLogs : logs;
 }
 
 module.exports = {

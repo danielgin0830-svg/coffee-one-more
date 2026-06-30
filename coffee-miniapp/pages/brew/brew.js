@@ -464,6 +464,12 @@ Page({
     });
   },
 
+  onOpenCoffeeReport() {
+    wx.navigateTo({
+      url: '/pages/reports/reports'
+    });
+  },
+
   onLuckyBeanPick() {
     const candidates = this.getLuckyBeanCandidates();
     if (!candidates.length) {

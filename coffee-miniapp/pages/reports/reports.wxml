@@ -1,0 +1,33 @@
+<view class="reports-page">
+  <nav-bar title="咖啡报告" showBack="{{true}}" />
+
+  <view class="reports-content">
+    <view class="reports-hero">
+      <text class="reports-kicker">喝过的每一杯都会留下线索</text>
+      <text class="reports-title">看看我的咖啡报告</text>
+      <text class="reports-desc">按最近的冲煮流水，整理你的喝咖啡节奏、豆子偏好和消耗趋势。</text>
+    </view>
+
+    <view class="report-option" wx:if="{{weeklyReport}}" bindtap="onOpenReport" data-type="weekly">
+      <view class="report-option-main">
+        <text class="report-option-title">周报</text>
+        <text class="report-option-desc">最近 7 天的冲煮节奏和偏好变化</text>
+        <text class="report-option-meta">{{weeklyReport.periodLabel}} · {{weeklyReport.progressText}}</text>
+      </view>
+      <view class="report-option-side {{weeklyReport.available ? 'ready' : 'locked'}}">
+        <text>{{weeklyReport.available ? '查看' : '未生成'}}</text>
+      </view>
+    </view>
+
+    <view class="report-option" wx:if="{{monthlyReport}}" bindtap="onOpenReport" data-type="monthly">
+      <view class="report-option-main">
+        <text class="report-option-title">月报</text>
+        <text class="report-option-desc">最近 30 天的豆子消耗和口味画像</text>
+        <text class="report-option-meta">{{monthlyReport.periodLabel}} · {{monthlyReport.progressText}}</text>
+      </view>
+      <view class="report-option-side {{monthlyReport.available ? 'ready' : 'locked'}}">
+        <text>{{monthlyReport.available ? '查看' : '未生成'}}</text>
+      </view>
+    </view>
+  </view>
+</view>

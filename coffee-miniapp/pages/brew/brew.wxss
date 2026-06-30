@@ -99,6 +99,64 @@
   flex-shrink: 0;
 }
 
+.coffee-report-card {
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  padding: 24rpx 24rpx;
+  margin-bottom: 18rpx;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFF4DE 100%);
+  border: 2rpx solid rgba(232, 117, 42, 0.28);
+  border-left: 8rpx solid var(--page-accent);
+  border-radius: 22rpx;
+  box-shadow: 0 8rpx 22rpx rgba(45, 36, 32, 0.05);
+}
+
+.coffee-report-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.coffee-report-title {
+  font-size: 31rpx;
+  font-weight: 900;
+  color: #2A211B;
+  line-height: 1.25;
+}
+
+.coffee-report-desc {
+  font-size: 23rpx;
+  font-weight: 700;
+  color: #7A6050;
+  line-height: 1.35;
+  word-break: break-all;
+}
+
+.coffee-report-action {
+  flex: 0 0 auto;
+  padding: 12rpx 20rpx;
+  border-radius: 999rpx;
+  background-color: var(--page-accent);
+  color: #FFFFFF;
+  box-shadow: 0 6rpx 18rpx var(--page-shadow);
+}
+
+.coffee-report-action text {
+  color: inherit;
+  font-size: 23rpx;
+  font-weight: 900;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
 .lucky-bean-card {
   flex-shrink: 0;
   box-sizing: border-box;

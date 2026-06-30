@@ -5,8 +5,17 @@
 
   <view class="step-content bean-step-content" wx:if="{{currentStep === 1}}">
     <view class="step-header">
-      <text class="step-title">选择咖啡豆</text>
       <text class="step-desc">从你的豆仓中选择一款豆子</text>
+    </view>
+
+    <view class="coffee-report-card" bindtap="onOpenCoffeeReport">
+      <view class="coffee-report-copy">
+        <text class="coffee-report-title">看看我的咖啡报告</text>
+        <text class="coffee-report-desc">用最近的冲煮记录看看你的消费节奏和豆子偏好</text>
+      </view>
+      <view class="coffee-report-action">
+        <text>查看</text>
+      </view>
     </view>
 
     <view class="lucky-bean-card" wx:if="{{beans.length > 0}}" bindtap="onLuckyBeanPick">

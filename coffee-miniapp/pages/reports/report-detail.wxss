@@ -1,0 +1,238 @@
+.report-detail-page {
+  height: 100vh;
+  box-sizing: border-box;
+  background-color: #FAF7F2;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei", sans-serif;
+  font-weight: 600;
+  --page-accent: #E8752A;
+  --page-accent-dark: #C85D1D;
+  --page-accent-light: #FFF4DE;
+  --page-shadow: rgba(232, 117, 42, 0.18);
+}
+
+.report-detail-page nav-bar {
+  display: block;
+  flex-shrink: 0;
+}
+
+.report-scroll {
+  width: 100%;
+  height: 0;
+  min-height: 0;
+  flex: 1;
+  box-sizing: border-box;
+  padding: 28rpx 40rpx calc(64rpx + constant(safe-area-inset-bottom));
+  padding-bottom: calc(64rpx + env(safe-area-inset-bottom));
+}
+
+.report-empty {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14rpx;
+  padding: 88rpx 36rpx;
+  margin-top: 36rpx;
+  background-color: #FFFFFF;
+  border: 2rpx dashed #EDE5D8;
+  border-radius: 24rpx;
+}
+
+.report-empty-icon {
+  font-size: 64rpx;
+  color: #E8B860;
+  line-height: 1;
+}
+
+.report-empty-title {
+  font-size: 34rpx;
+  font-weight: 900;
+  color: #2A211B;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.report-empty-desc {
+  font-size: 24rpx;
+  color: #7A6050;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.report-hero-card {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  padding: 30rpx 28rpx;
+  margin-bottom: 22rpx;
+  background: linear-gradient(135deg, #3C1F10 0%, #6B4226 56%, #E8752A 100%);
+  border-radius: 24rpx;
+  box-shadow: 0 12rpx 30rpx rgba(60, 31, 16, 0.18);
+}
+
+.report-period {
+  font-size: 22rpx;
+  font-weight: 900;
+  color: #FFE6B8;
+  line-height: 1.2;
+}
+
+.report-hero-title {
+  font-size: 40rpx;
+  font-weight: 900;
+  color: #FFFFFF;
+  line-height: 1.25;
+}
+
+.report-summary {
+  font-size: 24rpx;
+  color: rgba(255, 250, 246, 0.84);
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.metric-grid {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 14rpx;
+  margin-bottom: 22rpx;
+}
+
+.metric-card {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding: 22rpx 18rpx;
+  background-color: #FFFFFF;
+  border: 2rpx solid #EDE5D8;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 22rpx rgba(45, 36, 32, 0.04);
+}
+
+.metric-value {
+  font-size: 36rpx;
+  font-weight: 900;
+  color: #2A211B;
+  line-height: 1.1;
+}
+
+.metric-label {
+  font-size: 21rpx;
+  color: #7A6050;
+  line-height: 1.25;
+}
+
+.section-card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 26rpx 24rpx;
+  margin-bottom: 22rpx;
+  background-color: #FFFFFF;
+  border: 2rpx solid #EDE5D8;
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 22rpx rgba(45, 36, 32, 0.05);
+}
+
+.section-title {
+  display: block;
+  margin-bottom: 18rpx;
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #2A211B;
+  line-height: 1.25;
+}
+
+.daily-row {
+  width: 100%;
+  min-height: 48rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14rpx;
+  margin-bottom: 12rpx;
+}
+
+.daily-row:last-child {
+  margin-bottom: 0;
+}
+
+.daily-label {
+  flex: 0 0 72rpx;
+  font-size: 22rpx;
+  color: #7A6050;
+  line-height: 1.2;
+}
+
+.daily-track {
+  flex: 1;
+  min-width: 0;
+  height: 18rpx;
+  border-radius: 999rpx;
+  overflow: hidden;
+  background-color: #F2ECE6;
+}
+
+.daily-bar {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #E8B860 0%, #E8752A 100%);
+}
+
+.daily-value {
+  flex: 0 0 86rpx;
+  text-align: right;
+  font-size: 22rpx;
+  color: #2A211B;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.insight-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.insight-row {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #F2ECE6;
+}
+
+.insight-row:last-child {
+  border-bottom: 0;
+}
+
+.insight-label {
+  flex: 0 0 auto;
+  font-size: 24rpx;
+  color: #7A6050;
+  line-height: 1.3;
+}
+
+.insight-value {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  font-size: 26rpx;
+  font-weight: 900;
+  color: #2A211B;
+  line-height: 1.3;
+  word-break: break-all;
+}
