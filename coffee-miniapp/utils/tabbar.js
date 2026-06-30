@@ -2,7 +2,7 @@ const TAB_BAR_ITEMS = [
   { pagePath: 'pages/brew/brew', text: '搞杯喝的' },
   { pagePath: 'pages/recipes/recipes', text: '方案存档' },
   { pagePath: 'pages/beans/beans', text: '我的豆仓' },
-  { pagePath: 'pages/equipment/equipment', text: '设备' }
+  { pagePath: 'pages/equipment/equipment', text: '设备偏好' }
 ];
 
 function getCurrentRoute() {
