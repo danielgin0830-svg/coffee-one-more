@@ -51,6 +51,7 @@ Page({
     roastLevelOptions: ROAST_LEVEL_OPTIONS,
     roastLevelIndex: 0,
     roastLevelLabel: '',
+    showQuickAddEntry: false,
     today: '',
     ocrDraftApplied: false,
     ocrMatchedFields: [],
@@ -68,8 +69,7 @@ Page({
       return;
     }
     if (options.quickAdd === '1') {
-      this.startQuickAdd();
-      return;
+      this.setData({ showQuickAddEntry: true });
     }
     if (options.from === 'ocr') {
       this.applyOcrDraft();
@@ -388,9 +388,10 @@ Page({
   async startQuickAdd() {
     const app = getApp();
     if (!wx.cloud || !(app.globalData && app.globalData.cloudReady)) {
-      wx.showToast({
-        title: '云开发未就绪',
-        icon: 'none'
+      wx.showModal({
+        title: '暂不能秒拍入库',
+        content: '当前环境暂时无法使用图片识别，请先手动填写豆子信息。',
+        showCancel: false
       });
       return;
     }
@@ -410,9 +411,10 @@ Page({
         });
         return;
       }
+      console.error('秒拍入库识别异常:', e);
       wx.showModal({
-        title: '秒拍入库失败',
-        content: formatOcrError(e),
+        title: '识别暂不可用',
+        content: `${formatOcrError(e)}\n\n你也可以先手动填写豆子信息，保存功能不受影响。`,
         showCancel: false
       });
     }

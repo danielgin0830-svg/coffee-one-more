@@ -2,6 +2,16 @@
   <nav-bar title="{{isEdit ? '编辑豆子' : '添加豆子'}}" showBack="{{true}}" />
 
   <view class="form">
+    <view class="quick-add-entry-card" wx:if="{{showQuickAddEntry && !isEdit && !ocrDraftApplied}}">
+      <view class="quick-add-entry-copy">
+        <text class="quick-add-entry-title">秒拍入库</text>
+        <text class="quick-add-entry-desc">可拍摄豆袋文字自动预填；如果识别不可用，下面表单可以直接手动填写。</text>
+      </view>
+      <view class="quick-add-entry-btn" bindtap="startQuickAdd">
+        <text>开始识别</text>
+      </view>
+    </view>
+
     <view class="ocr-result-card" wx:if="{{ocrDraftApplied}}">
       <view class="ocr-result-header">
         <text class="ocr-result-title">秒拍入库</text>
