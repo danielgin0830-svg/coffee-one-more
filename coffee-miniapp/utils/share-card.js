@@ -100,33 +100,21 @@ function saveRecipeShareCard(page) {
     return;
   }
 
-  wx.saveImageToPhotosAlbum({
-    filePath,
-    success() {
+  wx.showLoading({ title: '保存中' });
+  ensureAlbumPermission()
+    .then(() => resolveShareCardImagePath(filePath))
+    .then((imagePath) => saveImageToAlbum(imagePath))
+    .then(() => {
+      wx.hideLoading();
       wx.showToast({
         title: '已保存到相册',
         icon: 'success'
       });
-    },
-    fail(error) {
-      const message = (error && error.errMsg) || '';
-      if (message.includes('auth') || message.includes('authorize')) {
-        wx.showModal({
-          title: '需要相册权限',
-          content: '请允许保存图片到相册，再发朋友圈。',
-          confirmText: '去设置',
-          success(res) {
-            if (res.confirm) wx.openSetting({});
-          }
-        });
-        return;
-      }
-      wx.showToast({
-        title: '保存失败',
-        icon: 'none'
-      });
-    }
-  });
+    })
+    .catch((error) => {
+      wx.hideLoading();
+      handleSaveImageError(error);
+    });
 }
 
 function drawRecipeShareCard(page, recipe) {
@@ -142,16 +130,117 @@ function drawRecipeShareCard(page, recipe) {
     ctx.draw(false, () => {
       wx.canvasToTempFilePath({
         canvasId: CANVAS_ID,
+        x: 0,
+        y: 0,
         width: CARD_WIDTH,
         height: CARD_HEIGHT,
         destWidth: CARD_WIDTH * 2,
         destHeight: CARD_HEIGHT * 2,
+        fileType: 'png',
         success(res) {
           resolve(res.tempFilePath);
         },
         fail: reject
       }, page);
     });
+  });
+}
+
+function resolveShareCardImagePath(filePath) {
+  return new Promise((resolve, reject) => {
+    wx.getImageInfo({
+      src: filePath,
+      success(res) {
+        resolve(res.path || filePath);
+      },
+      fail(error) {
+        console.warn('读取分享卡片图片信息失败，尝试直接保存:', error);
+        resolve(filePath);
+      }
+    });
+  });
+}
+
+function ensureAlbumPermission() {
+  return new Promise((resolve, reject) => {
+    wx.getSetting({
+      success(res) {
+        const authSetting = res.authSetting || {};
+        const albumScope = authSetting['scope.writePhotosAlbum'];
+        if (albumScope === true) {
+          resolve();
+          return;
+        }
+        if (albumScope === false) {
+          reject({ type: 'auth' });
+          return;
+        }
+        wx.authorize({
+          scope: 'scope.writePhotosAlbum',
+          success: resolve,
+          fail(error) {
+            reject({
+              type: 'auth',
+              error
+            });
+          }
+        });
+      },
+      fail() {
+        // If settings cannot be read, continue to the save API and let it
+        // surface the platform-specific error.
+        resolve();
+      }
+    });
+  });
+}
+
+function saveImageToAlbum(filePath) {
+  return new Promise((resolve, reject) => {
+    wx.saveImageToPhotosAlbum({
+      filePath,
+      success: resolve,
+      fail(error) {
+        reject({
+          type: inferSaveErrorType(error),
+          error
+        });
+      }
+    });
+  });
+}
+
+function inferSaveErrorType(error = {}) {
+  const message = String(error.errMsg || '');
+  if (/auth|authorize|permission|deny|denied/i.test(message)) return 'auth';
+  if (/file|path|not found|no such/i.test(message)) return 'image';
+  return 'save';
+}
+
+function handleSaveImageError(error = {}) {
+  const originalError = error.error || error;
+  console.error('保存分享卡片失败:', originalError);
+  if (error.type === 'auth') {
+    wx.showModal({
+      title: '需要相册权限',
+      content: '请允许保存图片到相册，再发朋友圈。',
+      confirmText: '去设置',
+      success(res) {
+        if (res.confirm) wx.openSetting({});
+      }
+    });
+    return;
+  }
+  if (error.type === 'image') {
+    wx.showToast({
+      title: '请重新生成卡片',
+      icon: 'none'
+    });
+    return;
+  }
+  wx.showToast({
+    title: '保存失败',
+    icon: 'none'
   });
 }
 
