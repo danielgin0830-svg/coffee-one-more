@@ -202,9 +202,8 @@
   width: 100%;
   box-sizing: border-box;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
   gap: 18rpx;
   padding: 22rpx 24rpx;
   background: linear-gradient(135deg, #FFF8EC 0%, #FFFFFF 100%);
@@ -222,10 +221,10 @@
 }
 
 .quick-add-entry-actions {
-  flex-shrink: 0;
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 10rpx;
+  flex-direction: row;
+  gap: 14rpx;
 }
 
 .quick-add-entry-title {
@@ -244,7 +243,13 @@
 }
 
 .quick-add-entry-btn {
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 0;
+  min-height: 68rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 12rpx 18rpx;
   border-radius: 999rpx;
   background-color: #E8752A;

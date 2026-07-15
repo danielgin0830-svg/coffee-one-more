@@ -14,10 +14,6 @@
     </view>
 
     <view class="hero-actions">
-      <view class="qr-add-btn" wx:if="{{!batchMode}}" bindtap="onQrAddBean">
-        <text class="qr-add-icon">码</text>
-        <text class="qr-add-text">扫码入库</text>
-      </view>
       <view class="quick-add-btn" wx:if="{{!batchMode}}" bindtap="onQuickAddBean">
         <text class="quick-add-icon">拍</text>
         <text class="quick-add-text">秒拍入库</text>
@@ -210,7 +206,6 @@
     <text class="empty-title">豆仓空空如也</text>
     <text class="empty-desc">添加你喜欢的咖啡豆，开始冲煮之旅</text>
     <view class="empty-actions">
-      <button class="btn-primary-empty qr" bindtap="onQrAddBean">扫码入库</button>
       <button class="btn-primary-empty quick" bindtap="onQuickAddBean">秒拍入库</button>
       <button class="btn-primary-empty manual" bindtap="onAddBean">手动添加</button>
     </view>

@@ -5,6 +5,8 @@ import test from 'node:test';
 const require = createRequire(import.meta.url);
 const {
   buildBeanFromDecoded,
+  buildCoffeeQrRecognitionPayload,
+  findCoffeeQrDuplicate,
   buildPreview
 } = require('../../../utils/coffee-qr-mvp.js');
 
@@ -58,4 +60,31 @@ test('decoded COF batch maps to the existing bean storage model', () => {
 test('invalid signatures cannot be imported', () => {
   const preview = buildPreview({ ...decoded, signatureStatus: 'invalid' });
   assert.equal(preview.canImport, false);
+  assert.throws(
+    () => buildCoffeeQrRecognitionPayload({ ...decoded, signatureStatus: 'invalid' }, 'COF1:invalid'),
+    /签名验证失败/
+  );
+});
+
+test('decoded COF batch becomes a quick-add recognition draft', () => {
+  const payload = buildCoffeeQrRecognitionPayload(decoded, 'COF1:test');
+
+  assert.equal(payload.source, 'COF 二维码');
+  assert.equal(payload.status, '校验通过，请确认');
+  assert.equal(payload.draft.name, '耶加雪菲 沃卡 水洗');
+  assert.equal(payload.draft.stockGrams, 200);
+  assert.equal(payload.metadata.qrIssuerId, 'local-demo-roaster');
+  assert.equal(payload.metadata.qrBatchId, 'MVP-001');
+  assert.equal(payload.rawText, 'COF1:test');
+});
+
+test('COF duplicate detection distinguishes identical and conflicting batches', () => {
+  const metadata = buildCoffeeQrRecognitionPayload(decoded).metadata;
+  const existing = { ...metadata, name: '已入库豆子' };
+
+  assert.equal(findCoffeeQrDuplicate([existing], metadata).type, 'same');
+  assert.equal(findCoffeeQrDuplicate([
+    { ...existing, qrPayloadHash: 'sha256:other' }
+  ], metadata).type, 'conflict');
+  assert.equal(findCoffeeQrDuplicate([], metadata), null);
 });

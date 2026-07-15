@@ -8,7 +8,6 @@
     "pages/recipes/recipes",
     "pages/recipes/replica/replica",
     "pages/beans/beans",
-    "pages/beans/qr-import/qr-import",
     "pages/equipment/equipment",
     "pages/login/login",
     "pages/beans/edit/edit",

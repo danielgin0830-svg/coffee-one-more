@@ -14,8 +14,16 @@ const {
   recognizeBeanLabelFromImage
 } = require('../../../utils/bean-ocr.js');
 const {
-  decodeBrewIonQr
+  decodeBrewIonQr,
+  isBrewIonQr
 } = require('../../../utils/brewion-qr.js');
+const {
+  buildCoffeeQrRecognitionPayload,
+  findCoffeeQrDuplicate,
+  getShortBatchApiUrl,
+  requestCoffeeQrApi,
+  requestCoffeeQrUrl
+} = require('../../../utils/coffee-qr-mvp.js');
 const {
   buildSharePayload,
   buildTimelinePayload
@@ -427,7 +435,7 @@ Page({
     }
   },
 
-  async startBrewIonQrScan() {
+  async startQrScan() {
     if (!wx.scanCode) {
       wx.showModal({
         title: '暂不能扫码',
@@ -437,6 +445,7 @@ Page({
       return;
     }
 
+    let loadingShown = false;
     try {
       const scanResult = await new Promise((resolve, reject) => {
         wx.scanCode({
@@ -446,7 +455,17 @@ Page({
           fail: reject
         });
       });
-      const payload = decodeBrewIonQr(scanResult.result);
+      wx.showLoading({ title: '正在识别' });
+      loadingShown = true;
+      const payload = await this.decodeSupportedQr(scanResult.result);
+      const duplicate = findCoffeeQrDuplicate(
+        getUserStorageSync('beans', []),
+        payload.metadata
+      );
+      if (duplicate) {
+        this.showCoffeeQrDuplicate(duplicate, payload.draft && payload.draft.name);
+        return;
+      }
       this.applyRecognitionPayload({
         ...payload,
         createdAt: Date.now()
@@ -456,10 +475,45 @@ Page({
       if (message.includes('cancel')) return;
       wx.showModal({
         title: '二维码无法识别',
-        content: `${message}\n\n当前支持 BrewIon CQ8，并兼容 CQ7 / CQ6。`,
+        content: `${message}\n\n当前支持 BrewIon CQ8 / CQ7 / CQ6，以及 COF 二维码和短链接。`,
         showCancel: false
       });
+    } finally {
+      if (loadingShown) wx.hideLoading();
     }
+  },
+
+  async decodeSupportedQr(qrText) {
+    const text = String(qrText || '').trim();
+    if (isBrewIonQr(text)) return decodeBrewIonQr(text);
+
+    const shortBatchApiUrl = getShortBatchApiUrl(text);
+    if (!text.startsWith('COF1:') && !shortBatchApiUrl) {
+      throw new Error('不是支持的咖啡豆二维码');
+    }
+    const decoded = shortBatchApiUrl
+      ? await requestCoffeeQrUrl(shortBatchApiUrl)
+      : await requestCoffeeQrApi('/api/decode', {
+        method: 'POST',
+        data: { qrText: text }
+      });
+    return buildCoffeeQrRecognitionPayload(decoded, text);
+  },
+
+  showCoffeeQrDuplicate(duplicate, fallbackName = '') {
+    if (duplicate.type === 'same') {
+      wx.showModal({
+        title: '该批次已入库',
+        content: duplicate.bean.name || fallbackName || '无需重复添加',
+        showCancel: false
+      });
+      return;
+    }
+    wx.showModal({
+      title: '批次信息存在冲突',
+      content: '同一发行方和批次编号对应了不同内容，已停止自动入库。',
+      showCancel: false
+    });
   },
 
   applyOcrDraft() {
@@ -498,7 +552,7 @@ Page({
       ocrCandidateGroups: this.buildOcrCandidateGroups(candidates, nextForm),
       ocrRawTextPreview: this.buildOcrTextPreview(payload.rawText),
       recognitionTitle: payload.source || '秒拍入库',
-      recognitionStatus: payload.source === 'BrewIon 二维码' ? '校验通过，请确认' : '已预填，请确认',
+      recognitionStatus: payload.status || (payload.source === 'BrewIon 二维码' ? '校验通过，请确认' : '已预填，请确认'),
       recognitionWarnings: Array.isArray(payload.warnings) ? payload.warnings : [],
       recognitionMetadata: payload.metadata || {}
     });
@@ -662,6 +716,14 @@ Page({
     try {
       const beans = getUserStorageSync('beans', []);
       const now = new Date().toISOString();
+
+      if (!isEdit) {
+        const duplicate = findCoffeeQrDuplicate(beans, recognitionMetadata);
+        if (duplicate) {
+          this.showCoffeeQrDuplicate(duplicate, normalizedForm.name);
+          return;
+        }
+      }
 
       if (isEdit) {
         const idx = beans.findIndex(b => b.id === editId);

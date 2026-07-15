@@ -1,5 +1,18 @@
 const DEFAULT_API_BASE_URL = 'http://127.0.0.1:3210';
 const API_BASE_URL_STORAGE_KEY = 'coffeeQrApiBaseUrl';
+const BEAN_DRAFT_FIELDS = [
+  'name',
+  'origin',
+  'roaster',
+  'roastDate',
+  'roastLevel',
+  'processing',
+  'flavorNotes',
+  'stockGrams',
+  'altitude',
+  'regionLot',
+  'variety'
+];
 
 function getApiBaseUrl() {
   const saved = wx.getStorageSync(API_BASE_URL_STORAGE_KEY);
@@ -104,6 +117,53 @@ function buildPreview(result = {}) {
   };
 }
 
+function buildCoffeeQrRecognitionPayload(result = {}, rawText = '') {
+  const preview = buildPreview(result);
+  if (!preview.canImport) {
+    throw new Error('签名验证失败，已停止自动入库');
+  }
+
+  const bean = buildBeanFromDecoded(result);
+  const draft = BEAN_DRAFT_FIELDS.reduce((value, field) => {
+    value[field] = bean[field];
+    return value;
+  }, {});
+  const metadata = Object.keys(bean).reduce((value, field) => {
+    if (field.startsWith('qr')) value[field] = bean[field];
+    return value;
+  }, {});
+  const warnings = [];
+  if (result.signatureStatus !== 'verified') {
+    warnings.push('二维码来源尚未完成签名验证，请保存前核对豆子信息。');
+  }
+  if (result.issuerStatus === 'revoked') {
+    warnings.push('二维码发行方已撤销，请谨慎核对后再保存。');
+  }
+
+  return {
+    source: 'COF 二维码',
+    status: result.signatureStatus === 'verified' ? '校验通过，请确认' : '已识别，请核对',
+    draft,
+    candidates: {},
+    rawText: String(rawText || ''),
+    warnings,
+    metadata
+  };
+}
+
+function findCoffeeQrDuplicate(beans = [], metadata = {}) {
+  if (!metadata.qrIssuerId || !metadata.qrBatchId) return null;
+  const bean = beans.find(item => (
+    item.qrIssuerId === metadata.qrIssuerId
+    && item.qrBatchId === metadata.qrBatchId
+  ));
+  if (!bean) return null;
+  return {
+    bean,
+    type: bean.qrPayloadHash === metadata.qrPayloadHash ? 'same' : 'conflict'
+  };
+}
+
 function mapProcessing(processes = []) {
   const codes = processes.map(item => item.code);
   const names = processes.map(displayName).join(' ');
@@ -172,7 +232,9 @@ module.exports = {
   API_BASE_URL_STORAGE_KEY,
   DEFAULT_API_BASE_URL,
   buildBeanFromDecoded,
+  buildCoffeeQrRecognitionPayload,
   buildPreview,
+  findCoffeeQrDuplicate,
   getApiBaseUrl,
   getShortBatchApiUrl,
   requestCoffeeQrApi,
