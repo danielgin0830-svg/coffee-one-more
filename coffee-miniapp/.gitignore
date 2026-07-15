@@ -15,3 +15,6 @@ node_modules/
 
 # Local QR issuer runtime data
 tools/coffee-qr-reference/.runtime/
+
+# Local agent state
+.workbuddy/
