@@ -1,0 +1,23 @@
+{
+  "name": "coffee-open-format-reference",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reference encoder and decoder for the Coffee Open Format v1 candidate.",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "test": "node --test",
+    "sample": "node scripts/generate-sample.mjs"
+  },
+  "dependencies": {
+    "@auth0/cose": "1.0.2",
+    "base45-js": "1.0.2",
+    "cbor": "10.0.12",
+    "qrcode": "1.5.4"
+  },
+  "devDependencies": {
+    "jsqr": "1.4.0",
+    "pngjs": "7.0.0"
+  }
+}

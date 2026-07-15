@@ -221,6 +221,13 @@
   gap: 8rpx;
 }
 
+.quick-add-entry-actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
 .quick-add-entry-title {
   font-size: 30rpx;
   font-weight: 900;
@@ -243,6 +250,11 @@
   background-color: #E8752A;
   color: #FFFFFF;
   box-shadow: 0 6rpx 16rpx rgba(232, 117, 42, 0.18);
+}
+
+.quick-add-entry-btn.qr {
+  background-color: #2E6B57;
+  box-shadow: 0 6rpx 16rpx rgba(46, 107, 87, 0.18);
 }
 
 .quick-add-entry-btn text {
@@ -392,6 +404,22 @@
 
 .ocr-raw-text {
   color: #9A8577;
+}
+
+.recognition-warnings {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding: 14rpx 16rpx;
+  background-color: #FFF4E6;
+  border: 2rpx solid rgba(207, 116, 44, 0.24);
+  border-radius: 14rpx;
+}
+
+.recognition-warning {
+  color: #8A4A1D;
+  font-size: 22rpx;
+  line-height: 1.45;
 }
 
 .form-label {

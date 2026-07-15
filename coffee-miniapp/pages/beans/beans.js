@@ -352,6 +352,16 @@ Page({
     });
   },
 
+  onQrAddBean() {
+    if (!requireLogin('登录后可扫描烘焙商二维码，并保存到你的豆仓。')) return;
+    if (this.data.batchMode) {
+      this.onToggleBatchMode();
+    }
+    wx.navigateTo({
+      url: '/pages/beans/qr-import/qr-import'
+    });
+  },
+
   onShareAppMessage() {
     return buildSharePayload(this);
   },

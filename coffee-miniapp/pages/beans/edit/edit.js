@@ -14,6 +14,9 @@ const {
   recognizeBeanLabelFromImage
 } = require('../../../utils/bean-ocr.js');
 const {
+  decodeBrewIonQr
+} = require('../../../utils/brewion-qr.js');
+const {
   buildSharePayload,
   buildTimelinePayload
 } = require('../../../utils/share-card.js');
@@ -56,7 +59,11 @@ Page({
     ocrDraftApplied: false,
     ocrMatchedFields: [],
     ocrCandidateGroups: [],
-    ocrRawTextPreview: ''
+    ocrRawTextPreview: '',
+    recognitionTitle: '秒拍入库',
+    recognitionStatus: '已预填，请确认',
+    recognitionWarnings: [],
+    recognitionMetadata: {}
   },
 
   onLoad(options) {
@@ -420,6 +427,41 @@ Page({
     }
   },
 
+  async startBrewIonQrScan() {
+    if (!wx.scanCode) {
+      wx.showModal({
+        title: '暂不能扫码',
+        content: '当前微信环境不支持二维码扫描，请升级微信后重试。',
+        showCancel: false
+      });
+      return;
+    }
+
+    try {
+      const scanResult = await new Promise((resolve, reject) => {
+        wx.scanCode({
+          onlyFromCamera: false,
+          scanType: ['qrCode'],
+          success: resolve,
+          fail: reject
+        });
+      });
+      const payload = decodeBrewIonQr(scanResult.result);
+      this.applyRecognitionPayload({
+        ...payload,
+        createdAt: Date.now()
+      });
+    } catch (error) {
+      const message = String((error && (error.errMsg || error.message)) || '二维码识别失败');
+      if (message.includes('cancel')) return;
+      wx.showModal({
+        title: '二维码无法识别',
+        content: `${message}\n\n当前支持 BrewIon CQ8，并兼容 CQ7 / CQ6。`,
+        showCancel: false
+      });
+    }
+  },
+
   applyOcrDraft() {
     let payload = null;
     try {
@@ -430,7 +472,10 @@ Page({
     }
 
     if (!payload || !payload.draft) return;
+    this.applyRecognitionPayload(payload);
+  },
 
+  applyRecognitionPayload(payload) {
     const draft = payload.draft || {};
     const candidates = payload.candidates || {};
     const nextForm = { ...this.data.form };
@@ -451,7 +496,11 @@ Page({
       ocrDraftApplied: true,
       ocrMatchedFields: matchedFields,
       ocrCandidateGroups: this.buildOcrCandidateGroups(candidates, nextForm),
-      ocrRawTextPreview: this.buildOcrTextPreview(payload.rawText)
+      ocrRawTextPreview: this.buildOcrTextPreview(payload.rawText),
+      recognitionTitle: payload.source || '秒拍入库',
+      recognitionStatus: payload.source === 'BrewIon 二维码' ? '校验通过，请确认' : '已预填，请确认',
+      recognitionWarnings: Array.isArray(payload.warnings) ? payload.warnings : [],
+      recognitionMetadata: payload.metadata || {}
     });
 
     wx.showToast({
@@ -578,7 +627,7 @@ Page({
 
   onSave() {
     if (!requireLogin('登录后可保存你的咖啡豆信息。')) return;
-    const { form, isEdit, editId } = this.data;
+    const { form, isEdit, editId, recognitionMetadata } = this.data;
 
     if (!form.name || !form.name.trim()) {
       wx.showToast({ title: '请输入名称', icon: 'none' });
@@ -619,12 +668,14 @@ Page({
         if (idx >= 0) {
           beans[idx] = {
             ...beans[idx],
+            ...recognitionMetadata,
             ...normalizedForm,
             updatedAt: now
           };
         }
       } else {
         beans.unshift({
+          ...recognitionMetadata,
           ...normalizedForm,
           id: Date.now().toString(),
           tags: [normalizedForm.processing].filter(Boolean),

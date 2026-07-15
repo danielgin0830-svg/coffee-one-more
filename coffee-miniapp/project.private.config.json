@@ -1,8 +1,8 @@
 {
   "libVersion": "3.16.1",
-  "projectname": "coffee-miniapp",
+  "projectname": "mini%20coffee%20app",
   "setting": {
-    "urlCheck": true,
+    "urlCheck": false,
     "coverView": true,
     "lazyloadPlaceholderEnable": false,
     "skylineRenderEnable": false,

@@ -1,0 +1,97 @@
+{
+  "source": {
+    "protocolVersion": 1,
+    "profileId": "single-origin-v1",
+    "registryId": "coffee-origin-registry",
+    "registryVersion": "2026.07.1",
+    "registryHash": "sha256:2378f3735e86959fe95f2a2735c46f9a53eb25f0476ed7b0a32d9f6c8fe3c4bc",
+    "issuerId": "local-demo-roaster",
+    "issuerName": "示例烘焙商",
+    "keyId": "demo-key-1",
+    "batchId": "20260712-001",
+    "issuedAt": "2026-07-12T09:00:00Z",
+    "productName": "埃塞俄比亚 沃卡 水洗",
+    "countryQrId": 21,
+    "entityRoles": [
+      {
+        "role": "region",
+        "qrId": 261
+      },
+      {
+        "role": "washing_station",
+        "qrId": 0,
+        "text": "示例沃卡水洗站",
+        "language": "zh-CN"
+      }
+    ],
+    "varietyQrIds": [
+      814,
+      815
+    ],
+    "processQrIds": [
+      167
+    ],
+    "cropYear": "2025/26",
+    "roastDate": "2026-07-10",
+    "roastLevel": "light",
+    "netWeightG": 200,
+    "altitudeMinM": 1900,
+    "altitudeMaxM": 2100,
+    "flavorTagQrIds": [],
+    "flavorNotes": "白花、柠檬、黄桃，冷却后有蜂蜜般的甜感",
+    "lotText": "LOT-WK-0710",
+    "language": "zh-CN",
+    "customFields": {}
+  },
+  "qrText": "COF1:RRQ13AP60IO06VCP$DHX5C$C4W59CKS70DCNW50IB0VJ0UPCO.C$ CLX5*KED3DZ-DZKED3D QEALE4P0NF6TF6Y$5-/6*86F6BZL4/YUX.B8-ISMT E5*Z6+4EIRA$Z4G191CRDSK.6KP8I9*OU 0*VDGPCIUD6VCP$DOX5S3E QE5$CD.0ZCT9SN:3O2CT%EJFYG31TM.GBKD0$CL2E/PDGEF/86NUD846C%6:/6KF6646:86CF35OAK9IE8FD1TFUGJJKE-S2 G%8M9-S LJI7TFUGW+H774BFMK7TD4JYT27NGW50.B0 500XK M0300X+E5$KD-S*UHOPM+0T1LKBFMK7T79J9VL0P0GLFMW52*95KG4I0D73W.5IEGI5L32D846PW6TF6C72Y8AKC2SI2ADPH73*TDI73FQ6.8FOCTG0O0OHAYS:IG48KA7TO%L2BGUOT2 G$IK$DUO HH1H+0T4*MGCI-6TOJHGZJDITS$JNCHPCT3 GJZIH6T35K-335T9*SAR1B3W5:/6R36L93GLFMW5V+9D48:4O2ZL2 6W+V*BK:RIZ:VRPAGXVBRU/1WK.I8HE5L7O6I:-VM*PVIUX$6-OMKA3* MBJ7UED-6I9A5WB7KO5F6QP 65L040",
+  "qrTextLength": 652,
+  "qrVersion": 16,
+  "moduleCount": 81,
+  "payloadHex": "b818010102010376636f666665652d6f726967696e2d72656769737472790469323032362e30372e310558202378f3735e86959fe95f2a2735c46f9a53eb25f0476ed7b0a32d9f6c8fe3c4bc06726c6f63616c2d64656d6f2d726f6173746572076fe7a4bae4be8be78398e78499e59586086a64656d6f2d6b65792d31096c32303236303731322d3030310a1a6a5357900b781de59f83e5a19ee4bf84e6af94e4ba9a20e6b283e58da120e6b0b4e6b4970c150d82a2010102190105a4010402000375e7a4bae4be8be6b283e58da1e6b0b4e6b497e7ab9904657a682d434e0e8219032e19032f0f8118a71067323032352f3236111950a412021318c81419076c15190834177839e799bde88ab1e38081e69fa0e6aaace38081e9bb84e6a183efbc8ce586b7e58db4e5908ee69c89e89c82e89c9ce888ace79a84e7949ce6849f18186b4c4f542d574b2d303731301819657a682d434e",
+  "coseHex": "d2844fa20127044a64656d6f2d6b65792d31a0590157b818010102010376636f666665652d6f726967696e2d72656769737472790469323032362e30372e310558202378f3735e86959fe95f2a2735c46f9a53eb25f0476ed7b0a32d9f6c8fe3c4bc06726c6f63616c2d64656d6f2d726f6173746572076fe7a4bae4be8be78398e78499e59586086a64656d6f2d6b65792d31096c32303236303731322d3030310a1a6a5357900b781de59f83e5a19ee4bf84e6af94e4ba9a20e6b283e58da120e6b0b4e6b4970c150d82a2010102190105a4010402000375e7a4bae4be8be6b283e58da1e6b0b4e6b497e7ab9904657a682d434e0e8219032e19032f0f8118a71067323032352f3236111950a412021318c81419076c15190834177839e799bde88ab1e38081e69fa0e6aaace38081e9bb84e6a183efbc8ce586b7e58db4e5908ee69c89e89c82e89c9ce888ace79a84e7949ce6849f18186b4c4f542d574b2d303731301819657a682d434e584009beb8ac4635ccfc5fa04a934dfd16539afb14f218fd7895d871c33b158f88fc98ccb2f0973618b2671991b4813ac169698f992958396e2bd9cec735e303b604",
+  "expected": {
+    "signatureStatus": "verified",
+    "batch": {
+      "protocolVersion": 1,
+      "profileId": "single-origin-v1",
+      "registryId": "coffee-origin-registry",
+      "registryVersion": "2026.07.1",
+      "registryHash": "sha256:2378f3735e86959fe95f2a2735c46f9a53eb25f0476ed7b0a32d9f6c8fe3c4bc",
+      "issuerId": "local-demo-roaster",
+      "issuerName": "示例烘焙商",
+      "keyId": "demo-key-1",
+      "batchId": "20260712-001",
+      "issuedAt": "2026-07-12T09:00:00.000Z",
+      "productName": "埃塞俄比亚 沃卡 水洗",
+      "countryQrId": 21,
+      "entityRoles": [
+        {
+          "role": "region",
+          "qrId": 261
+        },
+        {
+          "role": "washing_station",
+          "qrId": 0,
+          "text": "示例沃卡水洗站",
+          "language": "zh-CN"
+        }
+      ],
+      "varietyQrIds": [
+        814,
+        815
+      ],
+      "processQrIds": [
+        167
+      ],
+      "roastDate": "2026-07-10",
+      "roastLevel": "light",
+      "flavorNotes": "白花、柠檬、黄桃，冷却后有蜂蜜般的甜感",
+      "language": "zh-CN",
+      "cropYear": "2025/26",
+      "netWeightG": 200,
+      "altitudeMinM": 1900,
+      "altitudeMaxM": 2100,
+      "lotText": "LOT-WK-0710"
+    }
+  }
+}

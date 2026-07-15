@@ -4,18 +4,23 @@
   <view class="form">
     <view class="quick-add-entry-card" wx:if="{{showQuickAddEntry && !isEdit && !ocrDraftApplied}}">
       <view class="quick-add-entry-copy">
-        <text class="quick-add-entry-title">秒拍入库</text>
-        <text class="quick-add-entry-desc">可拍摄豆袋文字自动预填；如果识别不可用，下面表单可以直接手动填写。</text>
+        <text class="quick-add-entry-title">快速识别入库</text>
+        <text class="quick-add-entry-desc">拍摄豆袋文字，或扫描 BrewIon 咖啡二维码。</text>
       </view>
-      <view class="quick-add-entry-btn" bindtap="startQuickAdd">
-        <text>开始识别</text>
+      <view class="quick-add-entry-actions">
+        <view class="quick-add-entry-btn" bindtap="startQuickAdd">
+          <text>拍照识别</text>
+        </view>
+        <view class="quick-add-entry-btn qr" bindtap="startBrewIonQrScan">
+          <text>二维码识别</text>
+        </view>
       </view>
     </view>
 
     <view class="ocr-result-card" wx:if="{{ocrDraftApplied}}">
       <view class="ocr-result-header">
-        <text class="ocr-result-title">秒拍入库</text>
-        <text class="ocr-result-status">已预填，请确认</text>
+        <text class="ocr-result-title">{{recognitionTitle}}</text>
+        <text class="ocr-result-status">{{recognitionStatus}}</text>
       </view>
       <view class="ocr-field-tags" wx:if="{{ocrMatchedFields.length}}">
         <text class="ocr-field-tag" wx:for="{{ocrMatchedFields}}" wx:key="field">{{item.label}}</text>
@@ -40,6 +45,9 @@
             </view>
           </view>
         </view>
+      </view>
+      <view class="recognition-warnings" wx:if="{{recognitionWarnings.length}}">
+        <text class="recognition-warning" wx:for="{{recognitionWarnings}}" wx:key="*this">{{item}}</text>
       </view>
       <text class="ocr-result-tip">识别结果只作为草稿，保存前请核对必填项。</text>
       <text class="ocr-raw-text" wx:if="{{ocrRawTextPreview}}">识别原文：{{ocrRawTextPreview}}</text>

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Origin Format · 本地发行端</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-block">
+        <div class="brand-mark">COF</div>
+        <div>
+          <h1>Coffee Origin Format</h1>
+          <p>本地烘焙批次发行端</p>
+        </div>
+      </div>
+      <div class="service-state" id="serviceState">
+        <span class="state-dot"></span>
+        <span>正在连接</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="workspace-band">
+      <div class="workspace-inner">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">LOCAL ISSUER</span>
+            <h2>创建烘焙批次</h2>
+          </div>
+          <div class="registry-meta" id="registryMeta">编码表加载中</div>
+        </div>
+
+        <div class="workspace-grid">
+          <form class="issuer-form" id="issuerForm">
+            <fieldset>
+              <legend>发行信息</legend>
+              <div class="field-grid two-columns">
+                <label>
+                  <span>烘焙商名称</span>
+                  <input name="issuerName" value="本地测试烘焙商" maxlength="32" required>
+                </label>
+                <label>
+                  <span>发行方编号</span>
+                  <input name="issuerId" value="local-demo-roaster" maxlength="40" readonly required>
+                </label>
+                <label>
+                  <span>商品名称</span>
+                  <input name="productName" value="埃塞俄比亚 沃卡 水洗" maxlength="60" required>
+                </label>
+                <label>
+                  <span>批次编号</span>
+                  <input name="batchId" placeholder="留空自动生成" maxlength="40">
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>产地信息</legend>
+              <div class="field-grid two-columns">
+                <label>
+                  <span>国家</span>
+                  <select name="countryQrId" id="countrySelect" required></select>
+                </label>
+                <label>
+                  <span>产区</span>
+                  <select name="regionQrId" id="regionSelect"></select>
+                </label>
+                <label>
+                  <span>庄园／处理厂</span>
+                  <select name="stationQrId" id="stationSelect"></select>
+                </label>
+                <label id="customStationField" hidden>
+                  <span>未收录实体名称</span>
+                  <input name="customStationText" maxlength="60" placeholder="填写包装上的原始名称">
+                </label>
+                <label>
+                  <span>豆种（可多选）</span>
+                  <select name="varietyQrIds" id="varietySelect" multiple size="5"></select>
+                </label>
+                <label>
+                  <span>处理法（可多选）</span>
+                  <select name="processQrIds" id="processSelect" multiple size="5" required></select>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>批次信息</legend>
+              <div class="field-grid three-columns">
+                <label>
+                  <span>产季</span>
+                  <input name="cropYear" value="2025/26" maxlength="16">
+                </label>
+                <label>
+                  <span>烘焙日期</span>
+                  <input name="roastDate" type="date" required>
+                </label>
+                <label>
+                  <span>烘焙度</span>
+                  <select name="roastLevel" required>
+                    <option value="extremely_light">极浅烘</option>
+                    <option value="light" selected>浅烘</option>
+                    <option value="medium_light">中浅烘</option>
+                    <option value="medium">中烘</option>
+                    <option value="medium_dark">中深烘</option>
+                    <option value="dark">深烘</option>
+                  </select>
+                </label>
+                <label>
+                  <span>净含量（克）</span>
+                  <input name="netWeightG" type="number" value="200" min="1" max="100000">
+                </label>
+                <label>
+                  <span>最低海拔（米）</span>
+                  <input name="altitudeMinM" type="number" value="1900" min="-500" max="10000">
+                </label>
+                <label>
+                  <span>最高海拔（米）</span>
+                  <input name="altitudeMaxM" type="number" value="2100" min="-500" max="10000">
+                </label>
+              </div>
+              <div class="field-grid one-column">
+                <label>
+                  <span>风味描述 <strong id="flavorCounter">0/60</strong></span>
+                  <textarea name="flavorNotes" maxlength="60" required>白花、柠檬、黄桃，冷却后有蜂蜜般的甜感</textarea>
+                </label>
+                <label>
+                  <span>地块／批次补充</span>
+                  <input name="lotText" value="LOT-WK-0710" maxlength="40">
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="form-actions">
+              <button class="button secondary" type="reset">重置</button>
+              <button class="button primary" type="submit" id="generateButton">生成二维码</button>
+            </div>
+            <div class="form-message" id="formMessage" role="status"></div>
+          </form>
+
+          <aside class="preview-panel" aria-live="polite">
+            <div class="preview-empty" id="previewEmpty">
+              <div class="empty-symbol">QR</div>
+              <h3>等待生成</h3>
+              <p>填写批次后生成标准二维码</p>
+            </div>
+
+            <div class="preview-result" id="previewResult" hidden>
+              <div class="preview-status-row">
+                <span class="status-badge verified">签名有效</span>
+                <span class="status-badge registered">发行方已登记</span>
+              </div>
+              <div class="qr-frame">
+                <img id="qrImage" alt="生成的咖啡豆信息二维码">
+              </div>
+              <div class="qr-stats" id="qrStats"></div>
+              <div class="batch-summary" id="batchSummary"></div>
+              <div class="download-actions">
+                <button class="button primary" type="button" id="downloadSvg">下载 SVG</button>
+                <button class="button secondary" type="button" id="downloadPng">下载 PNG</button>
+                <button class="icon-button" type="button" id="copyText" title="复制二维码数据" aria-label="复制二维码数据">复制</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

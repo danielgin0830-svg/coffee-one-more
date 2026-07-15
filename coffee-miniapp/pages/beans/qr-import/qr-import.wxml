@@ -1,0 +1,91 @@
+<view class="qr-import-page">
+  <nav-bar title="扫码入库" />
+
+  <view class="scan-band">
+    <view class="scan-mark">COF</view>
+    <view class="scan-copy">
+      <text class="scan-title">扫描豆袋二维码</text>
+      <text class="scan-subtitle">Coffee Origin Format</text>
+    </view>
+  </view>
+
+  <view class="scan-actions">
+    <button class="scan-button primary" loading="{{loading}}" disabled="{{loading}}" bindtap="onScanCode">扫码识别</button>
+    <button class="scan-button secondary" loading="{{loading}}" disabled="{{loading}}" bindtap="onLoadLatest">载入最近生成</button>
+  </view>
+
+  <view class="scan-empty" wx:if="{{!hasPreview}}">
+    <view class="empty-code">
+      <view class="corner top-left"></view>
+      <view class="corner top-right"></view>
+      <view class="corner bottom-left"></view>
+      <view class="empty-center">QR</view>
+    </view>
+    <text class="empty-label">等待识别</text>
+  </view>
+
+  <view class="preview-card" wx:if="{{hasPreview}}">
+    <view class="preview-header">
+      <view class="preview-heading">
+        <text class="preview-kicker">{{preview.issuerName}}</text>
+        <text class="preview-title">{{preview.productName}}</text>
+      </view>
+      <view class="signature-badge {{preview.signatureStatus}}">
+        <text>{{preview.signatureLabel}}</text>
+      </view>
+    </view>
+
+    <view class="issuer-row">
+      <text class="issuer-label">{{preview.issuerLabel}}</text>
+      <text class="batch-id">批次 {{preview.batchId}}</text>
+    </view>
+
+    <view class="preview-grid">
+      <view class="preview-item wide">
+        <text class="item-label">产地</text>
+        <text class="item-value">{{preview.originText}}</text>
+      </view>
+      <view class="preview-item wide">
+        <text class="item-label">产区／处理厂</text>
+        <text class="item-value">{{preview.entityText}}</text>
+      </view>
+      <view class="preview-item">
+        <text class="item-label">豆种</text>
+        <text class="item-value">{{preview.varietyText}}</text>
+      </view>
+      <view class="preview-item">
+        <text class="item-label">处理法</text>
+        <text class="item-value">{{preview.processText}}</text>
+      </view>
+      <view class="preview-item">
+        <text class="item-label">烘焙日期</text>
+        <text class="item-value">{{preview.roastDate}}</text>
+      </view>
+      <view class="preview-item">
+        <text class="item-label">烘焙度</text>
+        <text class="item-value">{{preview.roastLevelText}}</text>
+      </view>
+      <view class="preview-item">
+        <text class="item-label">净含量</text>
+        <text class="item-value">{{preview.stockText}}</text>
+      </view>
+      <view class="preview-item">
+        <text class="item-label">海拔</text>
+        <text class="item-value">{{preview.altitudeText}}</text>
+      </view>
+      <view class="preview-item wide flavor-item">
+        <text class="item-label">风味描述</text>
+        <text class="item-value flavor-value">{{preview.flavorNotes}}</text>
+      </view>
+    </view>
+
+    <view class="invalid-notice" wx:if="{{!preview.canImport}}">
+      <text>签名验证失败，已停止自动入库</text>
+    </view>
+
+    <view class="preview-actions">
+      <button class="preview-button secondary" bindtap="onClearPreview">重新识别</button>
+      <button class="preview-button primary" disabled="{{!preview.canImport}}" bindtap="onConfirmImport">确认入库</button>
+    </view>
+  </view>
+</view>

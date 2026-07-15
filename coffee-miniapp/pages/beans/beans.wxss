@@ -90,22 +90,24 @@
 }
 
 .hero-actions {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12rpx;
   margin-top: 28rpx;
 }
 
 .hero-actions .add-btn,
 .hero-actions .quick-add-btn,
+.hero-actions .qr-add-btn,
 .hero-actions .batch-btn {
-  width: auto;
+  width: 100%;
   min-width: 0;
   padding: 18rpx 10rpx;
 }
 
 .hero-actions .add-text,
 .hero-actions .quick-add-text,
+.hero-actions .qr-add-text,
 .hero-actions .batch-btn {
   font-size: 24rpx;
 }
@@ -304,7 +306,8 @@
 }
 
 .add-btn,
-.quick-add-btn {
+.quick-add-btn,
+.qr-add-btn {
   flex: 1;
   width: 100%;
   min-width: 0;
@@ -329,6 +332,37 @@
   box-shadow: 0 6rpx 18rpx rgba(232, 184, 96, 0.18);
 }
 
+.qr-add-btn {
+  background-color: #EEF7F1;
+  border-style: solid;
+  border-color: rgba(62, 154, 94, 0.52);
+  box-shadow: 0 6rpx 18rpx rgba(47, 120, 72, 0.14);
+}
+
+.qr-add-icon,
+.quick-add-icon,
+.add-icon {
+  flex-shrink: 0;
+  width: 38rpx;
+  height: 38rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+  color: #FFFFFF;
+  background-color: #2F7848;
+  font-size: 20rpx;
+  font-weight: 900;
+}
+
+.quick-add-icon {
+  background-color: #C99327;
+}
+
+.add-icon {
+  background-color: #E8752A;
+}
+
 .batch-btn {
   flex: 1;
   min-width: 0;
@@ -346,6 +380,7 @@
 }
 
 .batch-btn.active {
+  grid-column: 1 / -1;
   flex-basis: 100%;
   color: var(--page-accent-dark);
   border-color: var(--page-accent);
@@ -880,6 +915,10 @@
 
 .btn-primary-empty.quick {
   background: linear-gradient(135deg, #E8B860 0%, #E8752A 100%);
+}
+
+.btn-primary-empty.qr {
+  background: #2F7848;
 }
 
 .btn-primary-empty.manual {

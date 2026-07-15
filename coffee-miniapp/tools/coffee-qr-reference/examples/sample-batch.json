@@ -1,0 +1,39 @@
+{
+  "protocolVersion": 1,
+  "profileId": "single-origin-v1",
+  "registryId": "coffee-origin-registry",
+  "registryVersion": "2026.07.1",
+  "registryHash": "sha256:2378f3735e86959fe95f2a2735c46f9a53eb25f0476ed7b0a32d9f6c8fe3c4bc",
+  "issuerId": "local-demo-roaster",
+  "issuerName": "示例烘焙商",
+  "keyId": "demo-key-1",
+  "batchId": "20260712-001",
+  "issuedAt": "2026-07-12T09:00:00Z",
+  "productName": "埃塞俄比亚 沃卡 水洗",
+  "countryQrId": 21,
+  "entityRoles": [
+    {
+      "role": "region",
+      "qrId": 261
+    },
+    {
+      "role": "washing_station",
+      "qrId": 0,
+      "text": "示例沃卡水洗站",
+      "language": "zh-CN"
+    }
+  ],
+  "varietyQrIds": [814, 815],
+  "processQrIds": [167],
+  "cropYear": "2025/26",
+  "roastDate": "2026-07-10",
+  "roastLevel": "light",
+  "netWeightG": 200,
+  "altitudeMinM": 1900,
+  "altitudeMaxM": 2100,
+  "flavorTagQrIds": [],
+  "flavorNotes": "白花、柠檬、黄桃，冷却后有蜂蜜般的甜感",
+  "lotText": "LOT-WK-0710",
+  "language": "zh-CN",
+  "customFields": {}
+}
